@@ -1,0 +1,21 @@
+.nositepadding {
+	margin: 0 10px 0 -10px;
+}
+
+.noLink.pageDel {
+	border-bottom: 1px dotted #A8A8A8;
+}
+
+#results {
+    padding: 10px 5px 5px;
+    background: #F8F8F8;
+}
+#results .result {
+    width: calc(100% - 10px);
+    margin-left: 5px;
+    padding: 2px 0px;
+    border-bottom: 1px solid #DDDDDD;
+}
+#results .result:first-child {
+    border-top: 1px solid #DDDDDD;
+}
