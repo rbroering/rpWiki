@@ -31,6 +31,8 @@ require_once $Wiki['dir']['scripts'] . 'cont.php';
 require_once $Wiki['dir']['scripts'] . 'link.php';
 require_once $Wiki['dir']['scripts'] . 'time.php';
 require_once $Wiki['dir']['scripts'] . 'permissions.php';
+require_once $Wiki['dir']['scripts'] . 'html.php';
+require_once $Wiki['dir']['scripts'] . 'tags.php';
 
 /* The section below contains operations similar to
  * these in AutofillVariables.php, but they depend on
@@ -61,8 +63,8 @@ foreach ($Wiki['groups'] as $Group => $Info) {
 */
 timestamp( 'GET' ); # Creating variables, fallback
 
-$GlobalImport		= compact( 'Wiki', 'dbc', 'Param', 'User', 'Actor' );
-$GlobalVariables	= compact( 'Wiki', 'dbc', 'Param', 'User', 'Actor', 'UserData', 'UserPref', 'timestamp', 'timezone' );
+$GlobalImport		= compact( 'Wiki', 'dbc', 'Param', 'User', 'Actor', 'HTML' );
+$GlobalVariables	= compact( 'Wiki', 'dbc', 'Param', 'User', 'Actor', 'UserData', 'UserPref', 'HTML', 'timestamp', 'timezone' );
 // Removed inter page data exchange variable IPDE
 
 $Skin = new Skin;
