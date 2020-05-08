@@ -5,10 +5,10 @@ class Page extends PageBase {
 		switch ($str) {
 			case 'pagetitle':
 			case 'disptitle':
-			return msg( 'pt-usericon', 1 );
+				return msg( 'pt-usericon', 1 );
 			break;
 			default:
-			return '';
+				return '';
 			break;
 		}
 	}
@@ -171,21 +171,21 @@ if ($User && p('set-usericon', $userPD['username'])) {
 
 		if (p('set-usericon')) {
 			$TargetUser = new User();
-			$TargetUser->set_user_by_username($userPD['username']);
+			$TargetUser->setUserByName($userPD['username']);
 
 			// Delete 3rd oldest usericon for target user
 			$MediaDelete = $dbc->prepare(
 			"DELETE FROM media WHERE id = (SELECT id FROM (SELECT id FROM media WHERE user = :user AND type = :type ORDER BY timestamp DESC LIMIT 2,1) AS t)"
 			);
 			$MediaDelete = $MediaDelete->execute([
-				':user' => $TargetUser->get_rand_id(),
+				':user' => $TargetUser->getRandId(),
 				':type'		=> 'usericon'
 			]);
 		}
 
 		try {
 			$upload = [
-				'access'		=> ((!p('set-usericon') && $userPD['username'] === $User)) ? json_encode(['permission' => ['set-usericon' => []]]) : '',
+				'access'		=> ((!p('set-usericon') && $userPD['username'] === USERNAME)) ? json_encode(['permission' => ['set-usericon' => []]]) : '',
 				'rand_id'		=> randID(20, 'media'),
 				'filename'		=> $upload_media_data['name'],
 				'filecontent'	=> file_get_contents($_FILES[$File]['tmp_name'])

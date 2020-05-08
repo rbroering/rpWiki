@@ -58,7 +58,7 @@ class Page extends PageBase {
 		if ($this->Status === 0 || $this->Status === 3) {
 			?>
 			<form method="post" <?php if (!empty($_GET[$Wiki['config']['urlparam']['redirect']])) {
-			    echo 'action="' . fl('login', array($Wiki['config']['urlparam']['redirect'] => $_GET[$Wiki['config']['urlparam']['redirect']])) . '" ';
+			    echo 'action="' . fl('login', [$Wiki['config']['urlparam']['redirect'] => $_GET[$Wiki['config']['urlparam']['redirect']]]) . '" ';
 			} ?>>
 				<input type="hidden" name="send" /><!-- -->
 				<input type="text" name="username" class="big-input input-login fi" maxlength="30" placeholder="<?php msg('placeholder-username') ?>" autocomplete="off" /><br />

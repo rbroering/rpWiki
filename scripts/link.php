@@ -55,12 +55,12 @@ if (!function_exists( 'fl' )) {
 					case 'page':
 						$short = 'p';
 						if (substr($tab, 0, 5) === 'User:' && !in_array($Wiki['config']['urlparam']['versionindex'], $params)) {
-							$short = 'u2';
+							$short = 'u';
 							$tab = substr($tab, 5);
 						}
 					break;
 					case 'user':
-						$short = 'u2';
+						$short = 'u';
 					break;
 				}
 				$link .= $short . '/' . $tab;

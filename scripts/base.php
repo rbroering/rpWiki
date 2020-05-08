@@ -77,6 +77,8 @@ class PageBase {
 			if (substr($Location, 0, 8) === 'default:') {
 				if (empty($this->Target))
 					$this->Target = substr($Location, 8);
+				else
+					$UseFL = false;
 			} else
 				$this->Target = $Location;
 		}
