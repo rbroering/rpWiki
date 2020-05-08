@@ -103,8 +103,11 @@ class User {
 	 * @param array $size
 	 * @return string
 	 */
-	public function getIcon($size = [200, 200]) {
+	public function getIcon($size = [200, 200], $usecase = false) {
 		global $Wiki;
+
+		$start = "";
+		$close = "";
 
 		if (is_integer($size))
 			$size = [$size];
@@ -116,7 +119,14 @@ class User {
 		$size = '/' . $size;
 		if ($size == '/w200') $size = '';
 
-		return ($this->exists()) ? $Wiki['dir']['usericons'] . $this->Data['usericon'] . $size . '/' . $this->getName() . '.png' : $Wiki['custom']['usericon'];
+		if ($usecase == 'cssurl') {
+			$start = "url('";
+			$close = "')";
+		}
+
+		$url = ($this->exists()) ? $Wiki['dir']['usericons'] . $this->Data['usericon'] . $size . '/' . $this->getName() . '.png' : $Wiki['custom']['usericon'];
+
+		return $start . $url . $close;
 	}
 
 
@@ -268,10 +278,10 @@ class CurrentUser extends User {
 	 * @param array $size
 	 * @return string
 	 */
-	final public function getIcon($size = [200, 200]) {
+	final public function getIcon($size = [200, 200], $usecase = false) {
 		global $Wiki;
 
-		return ($this->isLoggedIn()) ? parent::getIcon($size) : $Wiki['custom']['usericon'];
+		return ($this->isLoggedIn()) ? parent::getIcon($size, $usecase) : $Wiki['custom']['usericon'];
 	}
 
 
