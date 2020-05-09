@@ -119,6 +119,15 @@ $Wiki['select-groups']['protection'] = [
 ];
 
 $Wiki['namespace'] = [
+	'inwikilink' => [
+		'autoPrefix'	=> 'w',
+		'prefix'		=> 'w',
+		'page' => [
+			'comments' => false,
+			'customtitle' => false
+		],
+		'groups'		=> ['allrights']
+	],
 	'aet' => [
 		'autoPrefix'	=> 'AET',
 		'prefix'		=> 'aet',

@@ -67,5 +67,10 @@ if (!empty( $Wiki['select-groups']['protection'] )) {
 } else
 	$Wiki['select-groups']['protection'] = $Wiki['list-groups'];
 
+foreach ($Wiki['namespace'] as $i => $Namespace) {
+	if (is_string($Namespace['prefix']))
+		$Wiki['namespace'][$i]['prefix'] = [$Namespace['prefix']];
+}
+
 if (empty( $Wiki['config']['base-url'] ))
 	$Wiki['config']['base-url'] = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/';

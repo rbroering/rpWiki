@@ -98,15 +98,18 @@ class WikiPage {
 		} else
 			return false;
 	}
+
 	final public function exists() {
 		return $this->Page['exists'];
 	}
+
 	final public function get_namespace() {
 		if (!empty( $this->Page['namespace'] ))
 			return $this->Page['namespace'];
 		else
 			return false;
 	}
+
 	public function user_can_read() {
 		if (!empty( $this->Page['protect'] )) {
 			$InGroup = 0;
@@ -123,6 +126,7 @@ class WikiPage {
 			}
 		}
 	}
+
 	public function user_can_edit( $text = false ) {
 		global $GlobalImport;
 		extract( $GlobalImport );
@@ -184,9 +188,11 @@ class WikiPage {
 		if ($text && !empty($this->MsgError))
 			return $this->MsgError;
 	}
+
 	final public function data($index) {
 		return $this->Page[$index];
 	}
+
 	public function link() {
 		return al($this->data('heading'), 'page', ['?' => $this->Page['id_name']]);
 	}
@@ -282,6 +288,7 @@ class Page extends PageBase {
 			'url'		=> true
 		];
 		$this->Namespace = [
+			'w'			=> false,
 			'Blog'		=> false,
 			'CSS'		=> false,
 			'Help'		=> false,
