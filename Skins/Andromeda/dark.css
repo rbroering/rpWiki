@@ -2,9 +2,12 @@ body {
     background-image: linear-gradient(#333 0%, #444 40%, #333 70%, #000 100%);
 }
 
-a, a:hover, a:focus,
+a, a:hover, a:focus, a:active,
 .main.notif a, .main.notif a:hover, .main.notif a:focus {
     color: #D15D22;
+}
+a:active {
+    color: #D15D22 !important;
 }
 a button {
     color: #e86060;
