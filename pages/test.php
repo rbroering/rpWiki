@@ -37,11 +37,22 @@ class Page extends PageBase {
 		global $GlobalVariables;
 		extract( $GlobalVariables );
 
-		$str = 'w42-h60';
+		$TestUserParent = new User();
+		$TestUserParent->setUserByName("editorNo1");
+		echo $TestUserParent->getName() . " Permission: ";
+		echo $TestUserParent->hasPermission("editcomments");
+
+		echo "<br />";
+		$TestUserChild = new CurrentUser();
+		echo $TestUserChild->exists() . " ";
+		echo $TestUserChild->getName() . " Permission: ";
+		echo $TestUserChild->hasPermission("editcomments");
+
+		/*$str = 'w42-h60';
 		$str = 'h60';
 		$arr = [];
 		preg_match('/(?:(w)([0-9]+))?(?:-?(h)([0-9]+))?/', $str, $arr);
-		var_dump(array_filter($arr));
+		var_dump(array_filter($arr));*/
 
 		#echo bin2hex(random_bytes(32));#password_hash('Yuko', PASSWORD_DEFAULT);
 

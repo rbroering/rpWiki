@@ -117,16 +117,67 @@ class PageBase {
 	}
 
 	protected function __insertCheckbox($fetch) {
+		$Base_HTML = new HTMLTags();
+		$Base_HTML->setAutoNl(true);
+		$Base_HTML->setAutoIndent(true);
+
 		foreach ($fetch as $id => $checkBox) {
-			if (!isset($checkBox['checked']) || empty($checkBox['checked']) || (!is_bool($checkBox['checked']) && !is_numeric($checkBox['checked'])))
+			$disabled = "";
+
+			if (
+				!isset($checkBox['checked']) ||
+				empty($checkBox['checked']) ||
+				(
+					!is_bool($checkBox['checked']) &&
+					!is_numeric($checkBox['checked'])
+				)
+			)
 				$checkBox['checked'] = false;
-			if (!isset($checkBox['label']) || !is_string($checkBox['label']))
-				$checkBox['label'] = $id;
-			if (!isset($checkBox['name']))
-				$checkBox['name'] = $id;
+
+			if (empty($checkBox['class']))
+				$checkBox['class'] = [];
+			else {
+				if (is_string($checkBox['class']))
+					$checkBox['class'] = explode(' ', $checkBox['class']);
+			}
+
+			if (!isset($checkBox['name'])) $checkBox['name'] = $id;
+
+			$Settings = [
+				'type'		=> 'checkbox',
+				'name'		=> $checkBox['name'],
+				'id'		=> $id,
+				'class'		=> $Base_HTML->class(
+					array_merge(['check-hidden'], $checkBox['class'])
+				),
+				'checked'	=> ($checkBox['checked']) ? 'true' : 'false'
+			];
+
+			if (isset($checkBox['disabled']) && $checkBox['disabled'])
+				$Settings['disabled'] = 'true';
+
+			if (!isset($checkBox['label']) || !is_string($checkBox['label'])) $checkBox['label'] = $id;
+
+			echo $Base_HTML->divClass('checkbox',
+				$Base_HTML->tag('input', $Settings).
+				$Base_HTML->tag('label', [
+					'for'			=> $id,
+					'id'			=> $id . '_label',
+					'class'			=> $Base_HTML->class([
+						'check-label',
+						($checkBox['checked']) ? 'checked' : 'unchecked',
+						(array_key_exists('disabled', $checkBox)) ? 'disabled' : ''
+					]),
+					'data-checked'	=> ($checkBox['checked']) ? 'checked' : 'unchecked'
+				],
+					$Base_HTML->divId().
+					$Base_HTML->span($checkBox['label'], ['label-desc'])
+				)
+			);
+			/*
 			?>
 			<div class="checkbox" >
-				<input type="checkbox" name="<?php echo $checkBox['name']; ?>" id="<?php echo $id; ?>" class="check-hidden<?php if (!empty($checkBox['class'])) echo ' ' . $checkBox['class']; ?>" <?php if ($checkBox['checked']) { ?>checked="checked" <?php } ?>/>
+				<input type="checkbox" name="<?php echo $checkBox['name']; ?>" id="<?php echo $id; ?>" class="check-hidden<?php if (!empty($checkBox['class'])) echo ' ' . $checkBox['class']; ?>" <?php echo $disabled; if ($checkBox['checked']) { ?>checked="checked" <?php } ?>/>
 				<label for="<?php echo $id; ?>" id="<?php echo $id; ?>_label" class="check-label <?php if (!$checkBox['checked']) echo 'un'; ?>checked" data-checked="<?php if (!$checkBox['checked']) echo 'un'; ?>checked" >
 					<div></div>
 					<span class="label-desc" >
@@ -134,6 +185,7 @@ class PageBase {
 					</span>
 				</label>
 			</div><?php
+			*/
 		}
 	}
 

@@ -11,6 +11,10 @@ foreach ($Wiki['groups'] as $Group_Name => $Group_Settings) {
 		$Wiki['groups'][$Group_Name]['show'] = true;
 	if (!isset( $Wiki['groups'][$Group_Name]['show-on-userpage'] ))
 		$Wiki['groups'][$Group_Name]['show-on-userpage'] = $Wiki['groups'][$Group_Name]['show'];
+	if (!isset( $Wiki['groups'][$Group_Name]['groups-add'] ))
+		$Wiki['groups'][$Group_Name]['groups-add'] = [];
+	if (!isset( $Wiki['groups'][$Group_Name]['groups-remove'] ))
+		$Wiki['groups'][$Group_Name]['groups-remove'] = [];
 }
 
 foreach ($Wiki['groups'] as $Group => $Info) {

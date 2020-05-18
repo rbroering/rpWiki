@@ -44,6 +44,10 @@ $Wiki['config']['urlparam']['media-height']	= 'height';
 $Wiki['config']['urlparam']['media-width']	= 'width';
 $Wiki['config']['urlparam']['media-crop']	= 'crop';
 
+$Param['post']['user']						= 'username'; // equivalent to [username]
+$Param['post']['username']					= 'username'; // equivalent to [user]
+$Param['post']['password']					= 'password';
+
 $Param['url'] = $Wiki['config']['urlparam'];
 
 $Wiki['media-config']['usericon']['extensions-regex'] = "/^(png|jpe?g|gif)$/i";

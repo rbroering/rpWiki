@@ -117,6 +117,10 @@ label.check-label[data-checked="unchecked"].hover div {
 label.check-label[data-checked="checked"] div, label.check-label.checked div {
 	background-image: url('default-images/check-small_checked.png');
 }
+label.check-label.disabled {
+	opacity: .5;
+	cursor: not-allowed;
+}
 
 
 /* RADIOBUTTON */

@@ -37,8 +37,8 @@ class Page extends PageBase {
 				</form>
 			<?php
 				} elseIf(isset($_POST['editrights']) && !isset($_POST['submit'])) {
-					if($Profile['data']) {
-						if(ur('allrights', $TargetUser['username']) && !ur('allrights')) {
+					if ($Profile['data']) {
+						if (ur('allrights', $TargetUser['username']) && !ur('allrights')) {
 							msg('action-denied-editrights-allrights');
 						} else {
 							?>
@@ -51,6 +51,7 @@ class Page extends PageBase {
 										$checkBoxes = array();
 
 										foreach ($Wiki['groups'] as $Groupname => $Group) {
+											
 											$checkBoxes[$Groupname] = [
 												'checked'	=> ur( $Groupname, $TargetUser['username'] ),
 												'label'		=> '<span>' . $Group['msg'] . '</span> <small>(' . $Groupname . ')</small>'

@@ -43,6 +43,45 @@ class HTMLTags extends HTML {
 
 
     /**
+     * Generate a heading.
+     *
+     * @param integer|string $level
+     * @return string|false
+     */
+    public function heading($text, $level = 2, $class = []) {
+        $attributes = [
+            'class' => []
+        ];
+
+        $level_names = [
+            'sectiontitle'  => 3
+        ];
+
+        $level_attributes = [
+            'sectiontitle'  => [
+                'class'     => ['sectiontitle']
+            ]
+        ];
+
+        if (is_string($level)) {
+            if (array_key_exists($level, $level_attributes))
+                $attributes = array_merge($attributes, $level_attributes[$level]);
+
+            if (array_key_exists($level, $level_names))
+                $level      = $level_names[$level];
+        }
+
+        if (!is_numeric($level))    $level = 2;
+        if ($level < 1)             $level = 1;
+        if ($level > 6)             $level = 6;
+
+        $attributes['class'] = $this->class(array_merge($attributes['class'], $class));
+
+        return $this->returnOrPrint($this->tag("h$level", $attributes, $text));
+    }
+
+
+    /**
      * Generate a link (reference).
      *
      * @param string $href
@@ -69,10 +108,8 @@ class HTMLTags extends HTML {
         if (is_string($class))
             $class = [$class];
 
-        $class = $this->class($class);
-
         if (!empty($class))
-            $class = ['class' => $class];
+            $class = ['class' => $this->class($class)];
 
         $id = (!empty($id)) ? ['id' => $id] : [];
 

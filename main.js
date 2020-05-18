@@ -190,6 +190,8 @@ $( document ).ready( function() {
 		$( this ).toggleClass( 'hover' );
 	});
 	$( '.check-label' ).click( function() {
+		if ($( this ).hasClass('disabled')) return false;
+
 		if ($( this ).hasClass('checked')) {
 			$( this ).removeClass('checked').addClass('unchecked');
 			$( this ).attr('data-checked', 'unchecked');

@@ -21,11 +21,15 @@ class User {
 	/**
 	 * Set user by their random ID string
 	 *
-	 * @param string $id_rand
-	 * @return object
+	 * @param	string	$id_rand
 	 */
-	final public function setUser($id_rand) {
+	public function setUser($id_rand) {
 		global $dbc;
+
+		if (empty($id_rand)) {
+			$this->Data = false;
+			return;
+		}
 
 		$GetUser = $dbc->prepare('SELECT * FROM user WHERE rid = :rid LIMIT 1');
 		$GetUser->execute([
@@ -40,11 +44,15 @@ class User {
 	/**
 	 * Set user by their unique user name
 	 *
-	 * @param string $username
-	 * @return object
+	 * @param	string	$username
 	 */
-	final public function setUserByName($username) {
+	public function setUserByName($username) {
 		global $dbc;
+
+		if (empty($username)) {
+			$this->Data = false;
+			return;
+		}
 
 		$GetUser = $dbc->prepare('SELECT * FROM user WHERE username = :username LIMIT 1');
 		$GetUser->execute([
@@ -59,7 +67,7 @@ class User {
 	/**
 	 * Check whether the user exists
 	 *
-	 * @return boolean
+	 * @return	boolean
 	 */
 	final public function exists() {
 		return ($this->Data) ? true : false;
@@ -69,7 +77,7 @@ class User {
 	/**
 	 * Get user's random ID string
 	 *
-	 * @return string
+	 * @return	string
 	 */
 	final public function getRandId() {
 		return $this->Data['rid'];
@@ -79,7 +87,7 @@ class User {
 	/**
 	 * Get user's user name
 	 *
-	 * @return string
+	 * @return	string
 	 */
 	final public function getName() {
 		return $this->Data['username'];
@@ -89,8 +97,8 @@ class User {
 	/**
 	 * Get user's password, must be authorized by child class method
 	 *
-	 * @param string $Auth
-	 * @return string
+	 * @param	string	$Auth
+	 * @return	string
 	 */
 	final public function getPassword($Auth) {
 		return ($Auth === $this->Authorize) ? $this->Data['password'] : 'Unauthorized';
@@ -98,10 +106,116 @@ class User {
 
 
 	/**
+	 * Get user's groups and list them in an array
+	 *
+	 * @return	array
+	 */
+	final public function listGroups() {
+		return explode(',', rtrim($this->Data['rights'], ','));
+	}
+
+
+	/**
+	 * Check if user is in a given group
+	 *
+	 * @param	string	$Group
+	 * @return	boolean
+	 */
+	final public function isInGroup($Group) {
+		return in_array($Group, $this->listGroups());
+	}
+
+
+	/**
+	 * Get user's groups and list them in an array
+	 *
+	 * @return	array
+	 */
+	final public function listTypes() {
+		return explode(',', rtrim($this->Data['types'], ','));
+	}
+
+
+	/**
+	 * Check if a user is of a given type
+	 *
+	 * @param	string	$Type
+	 * @return	boolean
+	 */
+	final public function isOfType($Type) {
+		return in_array($Type, $this->listTypes());
+	}
+
+
+	/**
+	 * Check if a user is blocked
+	 *
+	 * @return	boolean
+	 */
+	final public function isBlocked() {
+		return $this->exists() && in_array('blocked', $this->listGroups());
+	}
+
+
+	/**
+	 * Check if a user has the permission for a given
+	 * action based on settings.
+	 *
+	 * @param	string	$Auth
+	 * @return	boolean
+	 */
+	public function hasPermission($Action, $Self = "") {
+		global $GlobalImport;
+		extract($GlobalImport);
+
+		// Deny if user is blocked
+		if ($this->isBlocked()) return false;
+
+		$Allowed = $dbc->prepare("SELECT groups, users FROM permissions WHERE permission = :permission LIMIT 1");
+		$Allowed->execute([
+			':permission' => $Action
+		]);
+		$Allowed = $Allowed->fetch();
+
+		// Action not found in permissions table
+		if (!$Allowed) {
+			echo "Fatal error: There is no entry in the 'permissions' database table for \"$Action\". Please contact a developer for further help.";
+			return false;
+		}
+
+		$Groups = $Allowed['groups'];
+		$Users	= (!empty($Allowed['users'])) ? explode(',', rtrim($Allowed['users'])) : false;
+
+		switch ($Groups) {
+			case '*': return true;		// Allow for everyone
+			case '-': return false;		// Disallow for everyone
+			case 'users': return $this->exists();	// Allow for users
+			default:
+				$Groups = explode(',', rtrim($Groups));
+
+				if ($Users && in_array($this->getName(), $Users, true))
+					return true;		// Permission for specified users
+
+				if (in_array('own', $Groups) && !empty($Self) && $Self == $this->getName())
+					return true;		// Permission as owner
+
+				foreach ($Groups as $Group) {
+					if ($this->isInGroup($Group))
+						return true;	// Allow for group
+				}
+
+				return false;			// If none of the above apply, then deny.
+		}
+
+		return false;	// Fallback -- If in doubt, deny.
+	}
+
+
+	/**
 	 * Get user's user icon
 	 * 
-	 * @param array $size
-	 * @return string
+	 * @param	array	$size
+	 * @return	string
 	 */
 	public function getIcon($size = [200, 200], $usecase = false) {
 		global $Wiki;
@@ -133,9 +247,11 @@ class User {
 	/**
 	 * Get the user page address
 	 *
-	 * @return string
+	 * @return	string
 	 */
 	final public function getPageAddress() {
+		global $Wiki;
+
 		return 'User:' . $this->getName();
 	}
 
@@ -143,7 +259,7 @@ class User {
 	/**
 	 * Get the user page random id
 	 *
-	 * @return string
+	 * @return	string
 	 */
 	final public function getPageRandId() {
 		global $dbc;
@@ -179,10 +295,18 @@ class CurrentUser extends User {
 	}
 
 
+	// Override parent method that shall not be usable
+	/* debug_backtrace() */
+	/*
+	final public function setUser($µ) { throw new Exception("Trying to set user for CurrentUser object."); exit(0); }
+	final public function setUserByName($µ) { throw new Exception("Trying to set user for CurrentUser object."); exit(0); }
+	*/
+
+
 	/**
 	 * Check whether current user is logged in
 	 *
-	 * @return boolean
+	 * @return	boolean
 	 */
 	final public function isLoggedIn() {
 		return $this->isLoggedIn;
@@ -192,9 +316,9 @@ class CurrentUser extends User {
 	/**
 	 * Check if valid log in and create session
 	 *
-	 * @param string $Username
-	 * @param string $Password
-	 * @return object
+	 * @param	string $Username
+	 * @param	string $Password
+	 * @return	object
 	 */
 	final public function logIn($Username, $Password) {
 		global $Wiki, $dbc;
@@ -264,7 +388,7 @@ class CurrentUser extends User {
 	/**
 	 * Destroy sessions
 	 *
-	 * @return void
+	 * @return	void
 	 */
 	final public function logOut() {
 		session_destroy();
@@ -275,8 +399,8 @@ class CurrentUser extends User {
 	/**
 	 * Get current user's user icon
 	 *
-	 * @param array $size
-	 * @return string
+	 * @param	array	$size
+	 * @return	string
 	 */
 	final public function getIcon($size = [200, 200], $usecase = false) {
 		global $Wiki;
@@ -288,7 +412,7 @@ class CurrentUser extends User {
 	/**
 	 * Get random id array of unread messages on profile
 	 *
-	 * @return array
+	 * @return	array
 	 */
 	final public function getUnreadMessages() {
 		global $dbc;
@@ -304,8 +428,3 @@ class CurrentUser extends User {
 		return ($this->isLoggedIn()) ? $Messages : [];
 	}
 }
-
-/* if (isset( $_SESSION['user'] ))
-	$User = $_SESSION['user'];
-else
-	$User = null; */
