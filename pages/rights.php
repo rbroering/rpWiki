@@ -1,194 +1,437 @@
 <?php
 
 class Page extends PageBase {
+	public $Scripts		= ['/js/rights.js'];
 
-	public function msg ($str) {
+	private $TargetUser = false;
+	private $PresetUser	= false;
+	private $Status		= "";
+
+	public function msg($str) {
 		switch ($str) {
 			case 'pagetitle':
 			case 'disptitle':
-				return msg( 'pt-rights', 1 );
-				break;
-			default:
-				return '';
-				break;
+				return msg('pt-rights', 1);
 		}
+
+		return false;
+	}
+
+	public function __construct() {
+		global $GlobalVariables;
+		extract($GlobalVariables);
+
+		$this->TargetUser = false;
+
+		if (!empty($_GET[$Param['url']['user']])) {
+			$this->PresetUser	= $_GET[$Param['url']['user']];
+			$this->TargetUser	= $_GET[$Param['url']['user']];
+		}
+
+		if (!empty($_POST[$Param['post']['user']])) {
+			$this->Status		= (isset($_POST[$Param['post']['submit']])) ? "submit" : "selection";
+			$this->TargetUser	= $_POST[$Param['post']['username']];
+		}
+
+		if (!empty($this->TargetUser)) {
+			$UserData = new User();
+			$UserData->setUserByName($this->TargetUser);
+			$this->TargetUser	= $UserData;
+		}
+	}
+
+	private function permission($Groupname, $action, $types = false) {
+		global $GlobalImport;
+		extract($GlobalImport);
+
+		$GroupsAdd		= [];
+		$GroupsRemove	= [];
+
+		foreach ($Actor->listGroups() as $Group) {
+			if (!$types) {
+				$GroupsAdd		= array_unique(array_merge($GroupsAdd, $Wiki['groups'][$Group]['groups-add']));
+				$GroupsRemove	= array_unique(array_merge($GroupsRemove, $Wiki['groups'][$Group]['groups-remove']));
+			} else {
+				$GroupsAdd		= array_unique(array_merge($GroupsAdd, $Wiki['groups'][$Group]['types-add']));
+				$GroupsRemove	= array_unique(array_merge($GroupsRemove, $Wiki['groups'][$Group]['types-remove']));
+			}
+		}
+
+		if (!$types) {
+			if (array_key_exists('group-remove-self', $Wiki['groups'][$Groupname]))
+			$self = $Wiki['groups'][$Groupname]['group-remove-self'];
+		} else {
+			if (array_key_exists('type-remove-self', $Wiki['types'][$Groupname]))
+			$self = $Wiki['types'][$Groupname]['type-remove-self'];
+		}
+
+		$give	= (in_array($Groupname, $GroupsAdd));
+		$take	= (in_array($Groupname, $GroupsRemove));
+		$both	= ($give or $take);
+		$xor	= ($give xor $take);
+
+		$self	= (isset($self) && !$take) ? ($Actor->isUser($this->TargetUser) && $self) : false;
+
+		$take	= ($take or $self);
+		$both	= ($give or $take);
+
+		switch($action) {
+			default: return false;
+			case 'give':
+			case 'add':
+				return $give;
+			break;
+			case 'take':
+			case 'remove':
+				return $take;
+			break;
+			case 'both':
+				return $both;
+			break;
+			case 'xor':
+				return $xor;
+			break;
+			case 'self':
+				return $self;
+			break;
+		}
+	}
+
+	private function submit() {
+		global $GlobalVariables;
+		extract($GlobalVariables);
+		timestamp('GET');
+
+		if (!$this->TargetUser->exists()) return false;
+
+		$New['groups']	= [];
+		$New['types']	= [];
+
+		// Groups
+		foreach ($Wiki['list-groups'] as $Group) {
+			if (
+				// If user can add
+				(
+					!$this->TargetUser->isInGroup($Group)
+					&&
+					$this->permission($Group, 'add')
+				)
+				// or
+				||
+				// If user can remove
+				(
+					$this->TargetUser->isInGroup($Group)
+					&&
+					(
+						$this->permission($Group, 'remove')
+						||
+						$this->permission($Group, 'self')
+					)
+				)
+			) {
+				// Check whether check box is checked
+				if (isset($_POST[$Group])) {
+					$New['groups'][] = $Group;
+				}
+				// otherwise
+			} else {
+				// use current setting
+				if ($this->TargetUser->isInGroup($Group)) {
+					$New['groups'][] = $Group;
+				}
+			}
+		}
+
+		// $Types
+		foreach ($Wiki['list-types'] as $Type) {
+			if (
+				// If user can add
+				(
+					!$this->TargetUser->isOfType($Type)
+					&&
+					$this->permission($Type, 'add', true)
+				)
+				// or
+				||
+				// If user can remove
+				(
+					$this->TargetUser->isOfType($Type)
+					&&
+					(
+						$this->permission($Type, 'remove', true)
+						||
+						$this->permission($Type, 'self', true)
+					)
+				)
+			) {
+				// Check whether check box is checked
+				if (isset($_POST[$Type])) {
+					$New['types'][] = $Type;
+				}
+				// otherwise
+			} else {
+				// use current setting
+				if ($this->TargetUser->isOfType($Type)) {
+					$New['types'][]	= $Type;
+				}
+			}
+		}
+
+		if (
+			$New['groups'] == $this->TargetUser->listGroups()
+			&&
+			$New['types'] == $this->TargetUser->listTypes()
+		) {
+			msg('rights-nochange');
+			return true;
+		}
+
+		$New['groups']	= array_unique($New['groups']);
+		$New['types']	= array_unique($New['types']);
+		$Str['groups']	= implode(',', $New['groups']);
+		$Str['types']	= implode(',', $New['types']);
+
+		$Log = $dbc->prepare("INSERT INTO log
+			(rid, user, username, page, pageURL, old, new, type, notice, timestamp, timezone)
+			VALUES
+			(:rid, :user, :username, :targetUserId, :targetUserName, :old, :new, :action, :note, :timestamp, :timezone)"
+		);
+		$Log = $Log->execute([
+			':rid'				=> $LogId = randId(),
+			':user'				=> USER_ID,
+			':username'			=> USERNAME,
+			':targetUserId'		=> $this->TargetUser->getRandId(),
+			':targetUserName'	=> $this->TargetUser->getName(),
+			':old'				=> json_encode([
+				'groups'		=> $this->TargetUser->listGroups(),
+				'types'			=> $this->TargetUser->listTypes()
+			]),
+			':new'				=> json_encode([
+				'groups'		=> $New['groups'],
+				'types'			=> $New['types']
+			]),
+			':action'			=> (!in_array('hidden', $this->TargetUser->listTypes()) && in_array('hidden', $New['types'])) ? 'hideuser' : 'rights',
+			':note'				=> $_POST[$Param['post']['reason']],
+			':timestamp'		=> $timestamp,
+			':timezone'			=> $timezone
+		]);
+
+		if ($Log) {
+			$Update = $dbc->prepare("UPDATE user SET rights = :groups, types = :types WHERE rid = :user");
+			$Update = $Update->execute([
+				':groups'	=> $Str['groups'],
+				':types'	=> $Str['types'],
+				':user'		=> $this->TargetUser->getRandId()
+			]);
+
+			if ($Update) {
+				msg('success-editrights', 0, $this->TargetUser->getName());
+			} else {
+				$Log = $dbc->prepare("DELETE FROM log WHERE rid = :logId");
+				$Log->execute([':rid' => $LogId]);
+
+				msg('rights-error-submit', 0, $this->TargetUser->getName());
+			}
+		}
+	}
+
+	private function makeCheckboxes($types = false) {
+		global $GlobalVariables;
+		extract($GlobalVariables);
+
+		$HTML_Rights = new HTMLTags();
+		$HTML_Inputs = new UiInputs();
+		$HTML_Rights->setPrintMode(true);
+		$HTML_Inputs->setPrintMode(true);
+
+		$key = ($types) ? 'types' : 'groups';
+
+		$checkBoxes = array();
+
+		foreach ($Wiki[$key] as $Groupname => $Group) {
+			if ($Groupname == 'blocked' && !isset($_GET['block'])) continue;
+
+			$Test = ($types) ? $this->TargetUser->isOfType($Groupname) : $this->TargetUser->isInGroup($Groupname);
+
+			$HTML_Rights->open("page_rights_{$key}_list_tr_$Groupname", 'tr');
+			$HTML_Rights->open("page_rights_{$key}_list_td_$Groupname", 'td');
+
+			$Note = "";
+
+			// Checkbox and group name
+			if ($this->permission($Groupname, 'self', $types))	$Note = msg('rights-nb-remove-self-only', 1);
+			if ($this->permission($Groupname, 'xor', $types))	$Note = msg('rights-nb-cannot-be-undone', 1);
+
+			$checkBoxes[$key][$Groupname] = [
+				'checked'	=> $Test,
+				'label'		=> "<span>" . $Group['msg'] . "</span>"
+			];
+
+			if (
+				($Test || !$this->permission($Groupname, 'add', $types)) &&
+				(!$Test || !$this->permission($Groupname, 'remove', $types))
+			) {
+				$checkBoxes[$key][$Groupname]['disabled'] = true;
+				$Note = msg('rights-nb-cannot-change', 1);
+			}
+
+			$HTML_Inputs->checkbox($Groupname, $checkBoxes[$key][$Groupname]);
+			$HTML_Rights->close("page_rights_{$key}_list_td_$Groupname");
+
+			// Technical group name
+			$HTML_Rights->open("page_rights_{$key}_list_td_name_$Groupname", 'td');
+			$HTML_Rights->tag('small', [], "($Groupname)");
+			$HTML_Rights->close("page_rights_{$key}_list_td_name_$Groupname", 'td');
+
+			// Notes
+			$HTML_Rights->open("page_rights_{$key}_list_td_note_$Groupname", 'td');
+			if (!empty($Note)) $HTML_Rights->tag('small', [], $Note);
+			$HTML_Rights->close("page_rights_{$key}_list_td_note_$Groupname", 'td');
+
+			$HTML_Rights->close("page_rights_{$key}_list_tr_$Groupname");
+		}
+
+		$HTML_Inputs->setPrintMode(false);
 	}
 
 	public function insert() {
 		global $GlobalVariables;
-		extract( $GlobalVariables );
+		extract($GlobalVariables);
 
-		if ((isset($_GET['user']) && !empty($_GET['user'])) || (isset($_POST['username']) && !empty($_POST['username']))) {
-			$TargetUser['username'] = (isset($_POST['username']) && !empty($_POST['username'])) ? $_POST['username'] : $_GET['user'];
+		$HTML_Rights = new HTMLTags();
+		$HTML_Inputs = new UiInputs();
+		$HTML_Inputs->setPrintMode(true);
 
-			$Profile['data'] = $dbc->prepare('SELECT * FROM user WHERE username = :username LIMIT 1');
-			$Profile['data']->execute(array(':username' => $TargetUser['username']));
-			$Profile['data'] = $Profile['data']->fetch();
+		if (($this->TargetUser && !$this->TargetUser->exists())) {
+			msg('rights-user-does-not-exist');
+			return false;
 		}
 
-		if (isset($User)) {
-			if (p('editusergroups')) {
-				if(!isset($_POST['editrights']) && !isset($_POST['submit'])) {
-			?>
-				<form method="post" >
-					<input type="hidden" name="editrights" /><!-- -->
-					<input type="text" name="username" class="fi" placeholder="<?php msg('global-ph-username') ?>" autocomplete="off" <?php if (isset($TargetUser['username'])) { echo 'value="'. $TargetUser['username'] .'" '; } ?>/><br />
-					<input type="submit" class="top10" value="<?php msg('rights-btn-edit') ?>" />
-				</form>
-			<?php
-				} elseIf(isset($_POST['editrights']) && !isset($_POST['submit'])) {
-					if ($Profile['data']) {
-						if (ur('allrights', $TargetUser['username']) && !ur('allrights')) {
-							msg('action-denied-editrights-allrights');
-						} else {
-							?>
-								<form method="post" id="rightsform" >
-									<input type="hidden" name="submit" /><!-- -->
-									<h3 class="sectiontitle top0" ><?php msg('rights-section-groups') ?></h3>
-									<input type="hidden" name="username" value="<?php echo $TargetUser['username']; ?>" />
-									<?php if(!isset($_GET['block'])) { ?><div class="checkbox-list" >
-									<?php
-										$checkBoxes = array();
+		if (($this->Status == 'submit')) {
+			$this->submit();
+			return true;
+		}
 
-										foreach ($Wiki['groups'] as $Groupname => $Group) {
-											
-											$checkBoxes[$Groupname] = [
-												'checked'	=> ur( $Groupname, $TargetUser['username'] ),
-												'label'		=> '<span>' . $Group['msg'] . '</span> <small>(' . $Groupname . ')</small>'
-											];
-										}
-										$this->__insertCheckbox( $checkBoxes );
-									?>
-									</div><?php } if(isset($_GET['block'])) { ?><div class="checkbox-list" >
-
-									<!-- Blocked -->
-									<div class="checkbox" ><input type="checkbox" name="blocked" id="blocked" class="check-hidden" <?php if(ur('blocked', $TargetUser['username'])) { echo 'checked="checked" '; } ?> /><label for="blocked" id="blocked_label" class="check-label <?php if(!ur('blocked', $TargetUser['username'])) { echo 'un'; } ?>checked" data-checked="<?php if(!ur('blocked', $TargetUser['username'])) { echo 'un'; } ?>checked" ><div></div><span class="label-desc" ><?php msg('group-blocked') ?> <small><?php msg('group-sys-blocked') ?></small></span></label></div>
-
-									</div><?php } ?>
-
-									<h3 class="sectiontitle top30" ><?php msg('rights-section-types') ?></h3><div class="checkbox-list" >
-
-									<!-- Hidden -->
-									<div class="checkbox" ><input type="checkbox" name="tHidden" id="tHidden" class="check-hidden" <?php if(ur('hidden', $TargetUser['username'], 1)) { echo 'checked="checked" '; } ?> /><label for="tHidden" id="tHidden_label" class="check-label <?php if(!ur('hidden', $TargetUser['username'], 1)) { echo 'un'; } ?>checked" data-checked="<?php if(!ur('hidden', $TargetUser['username'], 1)) { echo 'un'; } ?>checked" ><div></div><span class="label-desc" ><?php msg('group-hidden') ?> <small><?php msg('group-sys-hidden') ?></small></span></label></div>
-
-									<?php if(!isset($_GET['block'])) { ?>
-
-									<!-- Testing -->
-									<div class="checkbox" ><input type="checkbox" name="tTesting" id="tTesting" class="check-hidden" <?php if(ur('testing', $TargetUser['username'], 1)) { echo 'checked="checked" '; } ?> /><label for="tTesting" id="tTesting_label" class="check-label <?php if(!ur('testing', $TargetUser['username'], 1)) { echo 'un'; } ?>checked" data-checked="<?php if(!ur('testing', $TargetUser['username'], 1)) { echo 'un'; } ?>checked" ><div></div><span class="label-desc" ><?php msg('group-testing') ?> <small><?php msg('group-sys-testing') ?></small></span></label></div>
-
-									<!-- NoMsgWall -->
-									<div class="checkbox" ><input type="checkbox" name="tNomsg" id="tNomsg" class="check-hidden" <?php if(ur('nomsg', $TargetUser['username'], 1)) { echo 'checked="checked" '; } ?> /><label for="tNomsg" id="tNomsg_label" class="check-label <?php if(!ur('nomsg', $TargetUser['username'], 1)) { echo 'un'; } ?>checked" data-checked="<?php if(!ur('nomsg', $TargetUser['username'], 1)) { echo 'un'; } ?>checked" ><div></div><span class="label-desc" ><?php msg('group-nomsg') ?> <small><?php msg('group-sys-nomsg') ?></small></span></label></div>
-
-									</div><?php } ?>
-
-									<div class="invisible-break" ></div>
-
-									<textarea type="text" name="reason" class="big-textarea Areal top50" placeholder="<?php msg('global-ph-reason') ?>" ></textarea><br />
-									<input type="submit" class="big-submit top10" value="<?php msg('rights-btn-submit') ?>" />
-								</form>
-								
-							<?php
-						}
-					} else {
-						msg('user_not_existing');
-						echo ' <a href="rights" >' . msg('back', 1) . '</a>';
-					}
-				} elseIf (isset($_POST['submit']) && !isset($_POST['editrights'])) {
-					$TargetUser['username'] = $_POST['username'];
-					$rId = randStr(10);
-					$rights = '';
-					$types = '';
-					$prefix = 'User:';
-					$reason = $_POST['reason'];
-					timestamp('GET');
-					$Separator = ',';
-
-					$TestUser = $dbc->prepare('SELECT rid, rights, username FROM user WHERE username = :username LIMIT 1');
-					$TestUser->execute([
-						':username' => $TargetUser['username']
-					]);
-					$TargetUser = $TestUser->fetch();
-
-					if (!empty( $TargetUser )) {
-						/* RIGHTS */
-						$SelectedGroups = array('groups' => [], 'types' => []);
-						foreach ($Wiki['groups'] as $Groupname => $Group) {
-							if (isset( $_POST[$Groupname] )) {
-								$rights .= $Groupname . $Separator;
-								array_push($SelectedGroups['groups'], $Groupname);
-							}
-						}
-						// ---------
-						/* TYPES */
-							if (isset($_POST['tHidden'])) {
-								$types .= 'hidden,';
-								array_push($SelectedGroups['types'], 'hidden');
-							}
-							if (isset($_POST['tTesting'])) {
-								$types .= 'testing,';
-								array_push($SelectedGroups['types'], 'testing');
-							}
-							if (isset($_POST['tNomsg'])) {
-								$types .= 'nomsg,';
-								array_push($SelectedGroups['types'], 'nomsg');
-							}
-						// --------
-						if (ur('allrights', $TargetUser['username']) && !ur('allrights'))
-							echo 'You are not allowed to edit rights of a staff.';
-						else {
-							if (!ur('allrights') && stristr($rights, 'allrights')) {
-								echo $types;
-								echo 'You are not allowed to give staff rights.';
-							} else {
-								# $old = 'groups:' . ur('*', $TargetUser['username']) . 'types:' . ur('*', $TargetUser['username'], 1);
-								# $new = 'groups:' . $rights . 'types:' . $types;
-								$old = [
-									'groups' => array_filter(explode(',', ur('*', $TargetUser['username']))),
-									'types' => array_filter(explode(',', ur('*', $TargetUser['username'], true)))
-								];
-								$new = $SelectedGroups;
-
-								$updateUserRights = $dbc->prepare("UPDATE user SET rights = :userrights, types = :usertypes WHERE username = :username");
-								$updateUserRights = $updateUserRights->execute([
-									':userrights' => $rights,
-									':usertypes' => $types,
-									':username' => $TargetUser['username']
-								]);
-
-								$action = (!in_array('hidden', $old['types']) && in_array('hidden', $new['types'])) ? 'hideuser' : 'rights';
-
-								$updateLog = $dbc->prepare("INSERT INTO log
-									(rid, username, page, pageURL, old, new, type, notice, timestamp, timezone)
-
-									VALUES
-									(:rid, :username, :targetuserid, :targetusername, :old, :new, :action, :note, :timestamp, :timezone)");
-								$updateLog = $updateLog->execute([
-									':rid'				=> randId(),
-									':username'			=> $User,
-									':targetuserid'		=> $TargetUser['rid'],
-									':targetusername'	=> $TargetUser['username'],
-									':old'				=> json_encode($old),
-									':new'				=> json_encode($new),
-									':action'			=> $action,
-									':note'				=> $reason,
-									':timestamp'		=> $timestamp,
-									':timezone'			=> $timezone
-								]);
-
-								if ($updateUserRights)
-									msg('success-editrights', 0, $TargetUser['username']);
-								else {
-									msg('error');
-									msg('error-editrights');
-								}
-							}
-						}
-					}
-				}
-			} else
-				msg('action-denied-editrights');
-		} else
+		if (!p('editusergroups')) {
 			msg('action-denied-editrights');
+			return false;
+		}
+
+		$HTML_Rights->setAutoNl(true);
+		$HTML_Rights->setAutoIndent(5, true);
+
+		switch ($this->Status) {
+			default:
+				$HTML_Rights->setPrintMode(false);
+
+				echo $HTML_Rights->tag('form', [
+					'method'	=> 'post'
+				],
+					$HTML_Rights->tag('input', [
+						'type'	=> 'hidden',
+						'name'	=> 'editrights'
+					]).
+					$HTML_Rights->tag('input', [
+						'type'			=> 'text',
+						'name'			=> $Param['post']['username'],
+						'class'			=> $HTML_Rights->class(['fi']),
+						'placeholder'	=> msg('global-ph-username', 1),
+						'autocomplete'	=> 'off',
+						'value'			=> (!empty($this->PresetUser)) ? $this->PresetUser : ""
+					]).
+					$HTML_Rights->br('follows-input').
+					$HTML_Rights->tag('input', [
+						'type'	=> 'submit',
+						'class'	=> $HTML_Rights->class(['top10']),
+						'value'	=> msg('rights-btn-edit', 1)
+					])
+				);
+
+				$HTML_Rights->setPrintMode(true);
+			break;
+			case "selection":
+				$HTML_Rights->setPrintMode(true);
+
+				/* RIGHTSFORM */
+				$HTML_Rights->open('page_rights_form_selection', 'form', [
+					'id'		=> 'rightsform',
+					'method'	=> 'post'
+				]);
+
+				$HTML_Rights->tag('input', [
+					'type'	=> 'hidden',
+					'name'	=> 'submit'
+				]);
+
+				$HTML_Rights->tag('input', [
+					'type'	=> 'hidden',
+					'name'	=> $Param['post']['username'],
+					'value'	=> $this->TargetUser->getName()
+				]);
+
+				// HEADING Groups
+				$HTML_Rights->heading(msg('rights-section-groups', 1), 'sectiontitle', ['top0']);
+
+				/* TABLE GROUPS */
+				$HTML_Rights->open('page_rights_list_table', 'table', [
+					'id'			=> 'table_groups',
+					'class'			=> $HTML_Rights->class(['positioning-table', 'light-borders', 'thin-borders']),
+					'cellspacing'	=> '0',
+					'cellpadding'	=> '5',
+					'border'		=> '0'
+				]);
+
+				$this->makeCheckboxes();
+
+				$HTML_Inputs->setPrintMode(false);
+				$HTML_Rights->close('page_rights_list_table');
+				/* table groups */
+
+				// HEADING Types
+				$HTML_Rights->heading(msg('rights-section-types', 1), 'sectiontitle', ['top30']);
+
+				/* TABLE TYPES */
+				$HTML_Rights->open('page_rights_types_list_table', 'table', [
+					'id'			=> 'table_types',
+					'class'			=> $HTML_Rights->class(['positioning-table', 'light-borders', 'thin-borders']),
+					'cellspacing'	=> '0',
+					'cellpadding'	=> '5',
+					'border'		=> '0'
+				]);
+
+				$HTML_Inputs->setPrintMode(true);
+
+				$this->makeCheckboxes(true);
+
+				$HTML_Rights->close('page_rights_types_list_table');
+				/* table types */
+
+				$HTML_Inputs->setPrintMode(false);
+
+				// Notes
+				$HTML_Rights->divClass('invisible-break');
+				$HTML_Rights->tag('textarea', [
+					'name'			=> $Param['post']['reason'],
+					'class'			=> $HTML_Rights->class(['big-textarea', 'Areal', 'top50']),
+					'placeholder'	=> msg('global-ph-reason', 1)
+				]);
+				$HTML_Rights->br('follows-textarea');
+
+				// Submit
+				$HTML_Rights->tag('input', [
+					'type'	=> 'submit',
+					'class'	=> $HTML_Rights->class(['big-submit', 'top10']),
+					'value'	=> msg('rights-btn-submit', 1)
+				]);
+
+				$HTML_Rights->close('page_rights_form_selection');
+				/* rightsform */
+
+				$HTML_Rights->getErrors();
+			break;
+		}
+
+		return true;
 	}
 }
 ?>
