@@ -12,7 +12,7 @@ define('VALIDACCESS', true);
 
 include_once 'Defaults.php';
 require_once 'Config.php';
-#require_once 'AutofillVariables.php';
+
 
 /* Imports every neccessary resource for the Wiki
  * manually.
@@ -33,6 +33,8 @@ require_once $Wiki['dir']['scripts'] . 'time.php';
 require_once $Wiki['dir']['scripts'] . 'permissions.php';
 require_once $Wiki['dir']['scripts'] . 'html.php';
 require_once $Wiki['dir']['scripts'] . 'tags.php';
+require_once $Wiki['dir']['scripts'] . 'ui-inputs.php';
+
 
 /* The section below contains operations similar to
  * these in AutofillVariables.php, but they depend on
@@ -40,13 +42,6 @@ require_once $Wiki['dir']['scripts'] . 'tags.php';
 */
 require_once 'AutofillVariables.php';
 
-/*
-foreach ($Wiki['groups'] as $Group => $Info) {
-	if (!isset( $Info['msg'] ) || empty( $Info['msg'] )) {
-		$Wiki['groups'][$Group]['msg'] = msg( 'group-' . $Group, 1 );
-	}
-}
-*/
 
 /* Puts important variables into array "GlobalImport",
  * which can be accessed from functions by using the
@@ -61,13 +56,18 @@ foreach ($Wiki['groups'] as $Group => $Info) {
  * global before, to make sure it will be used even
  * when it has been deleted from GlobalImport.
 */
-timestamp( 'GET' ); # Creating variables, fallback
+timestamp( 'GET' ); // Getting fallback timestamp
 
 $GlobalImport		= compact( 'Wiki', 'dbc', 'Param', 'User', 'Actor', 'HTML' );
-$GlobalVariables	= compact( 'Wiki', 'dbc', 'Param', 'User', 'Actor', 'UserData', 'UserPref', 'HTML', 'timestamp', 'timezone' );
-// Removed inter page data exchange variable IPDE
+$GlobalVariables	= compact(
+	'Wiki', 'dbc', 'Param', 'User', 'Actor', 'UserData',
+	'UserPref', 'HTML', 'UI_Inputs', 'timestamp', 'timezone'
+);
+
+// Removed inter-page data-exchange variable IPDE
 
 $Skin = new Skin;
+
 
 /* This detects the page that is requested by the
  * user. Change Wiki['config']['urlparam']['page']
@@ -82,6 +82,7 @@ if (isset( $Wiki['config']['urlparam']['page'] )) {
 
 if (substr( $System['page'], 0, 4 ) == "wiki")
 	$System['page']		= 'page';
+
 
 /* This switch allows for multiple diferrent URLs to
  * lead to one connected page in your "pages" folder.
@@ -99,6 +100,7 @@ switch ($System['page']) {
 		$System['page'] = 'page';
 	break;
 }
+
 
 /* The following code looks for the page resources in
  * your "pages" path and eventually throws an error

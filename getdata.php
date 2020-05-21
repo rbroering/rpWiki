@@ -25,6 +25,7 @@ require_once $Wiki['dir']['scripts'] . 'link.php';
 require_once $Wiki['dir']['scripts'] . 'permissions.php';
 require_once $Wiki['dir']['scripts'] . 'html.php';
 require_once $Wiki['dir']['scripts'] . 'tags.php';
+require_once $Wiki['dir']['scripts'] . 'ui-inputs.php';
 
 require_once 'AutofillVariables.php';
 
