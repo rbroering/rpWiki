@@ -117,13 +117,15 @@ class PageBase {
 	}
 
 	protected function __insertCheckbox($fetch) {
+		$UI_Inputs = new UiInputs();
+		$UI_Inputs->setPrintMode(true);
+		$UI_Inputs->checkboxList($fetch);
+		/*
 		$Base_HTML = new HTMLTags();
 		$Base_HTML->setAutoNl(true);
 		$Base_HTML->setAutoIndent(true);
 
 		foreach ($fetch as $id => $checkBox) {
-			$disabled = "";
-
 			if (
 				!isset($checkBox['checked']) ||
 				empty($checkBox['checked']) ||
@@ -174,6 +176,7 @@ class PageBase {
 					$Base_HTML->span($checkBox['label'], ['label-desc'])
 				)
 			);
+			*/
 			/*
 			?>
 			<div class="checkbox" >
@@ -186,7 +189,9 @@ class PageBase {
 				</label>
 			</div><?php
 			*/
+			/*
 		}
+		*/
 	}
 
 	protected function __insertRadio( $group, $fetch) {

@@ -16,7 +16,12 @@ class HTML {
     private $Errors       = [];
     private $Warnings     = [];
 
-    public $noNlTags    = [
+    protected $noValueAttributes = [
+        'checked',
+        'disabled'
+    ];
+
+    protected $noNlTags    = [
         'span', 'b', 'i', 'u', 'strong', 's',
         'div' => [
             'attributes' => [
@@ -41,7 +46,7 @@ class HTML {
         ]
     ];
 
-    public $noIndent    = [
+    protected $noIndent    = [
         'span', 'b', 'i', 'u', 'strong', 's',
         'div' => [
             'attributes' => [
@@ -252,7 +257,12 @@ class HTML {
         $attributes = empty($tag_attributes) ? "" : " ";
 
         foreach ($tag_attributes as $key => $value) {
-            $attributes .= $key . "=\"" . $value . "\" ";
+            if (
+                (!empty($value) && $value && $value != "false" && $value != "off") ||
+                !in_array($key, $this->noValueAttributes)
+            ) {
+                $attributes .= $key . "=\"" . $value . "\" ";
+            }
         }
 
         return $attributes;
@@ -303,7 +313,7 @@ class HTML {
             $tag_name = $tagList['tag'];
 
             if ($tagList['printmodeopen'] !== $tagList['printmodeclose'])
-                $this->Warnings[] = "Different print modes set when opening and closening tag &lt;$tag_name&gt; (ID: <b>$id</b>).";
+                $this->Warnings[] = "Different print modes set when opening and closing tag &lt;$tag_name&gt; (ID: <b>$id</b>).";
 
             $this->indent--;
 
