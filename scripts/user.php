@@ -80,7 +80,7 @@ class User {
 	 * @return	string
 	 */
 	final public function getRandId() {
-		return $this->Data['rid'];
+		return ($this->exists()) ? $this->Data['rid'] : false;
 	}
 
 

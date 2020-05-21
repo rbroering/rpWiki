@@ -3,8 +3,10 @@ if (!defined('VALIDACCESS')) {
 	exit();
 }
 
-$Actor = new CurrentUser();
+$Actor		= new CurrentUser();
 
-$USERNAME = $Actor->getName();
+$USER_ID	= $Actor->getRandId();
+$USERNAME	= $Actor->getName();
 
+define('USER_ID', $USER_ID);
 define('USERNAME', $USERNAME);
