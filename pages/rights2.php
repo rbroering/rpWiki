@@ -1,6 +1,8 @@
 <?php
 
 class Page extends PageBase {
+	public $Scripts		= ['/js/rights.js'];
+
 	private $TargetUser = false;
 	private $PresetUser	= false;
 	private $Status		= "";
@@ -38,11 +40,127 @@ class Page extends PageBase {
 		}
 	}
 
+	private function permission($Groupname, $action, $types = false) {
+		global $GlobalImport;
+		extract($GlobalImport);
+
+		$GroupsAdd		= [];
+		$GroupsRemove	= [];
+
+		foreach ($Actor->listGroups() as $Group) {
+			if (!$types) {
+				$GroupsAdd		= array_unique(array_merge($GroupsAdd, $Wiki['groups'][$Group]['groups-add']));
+				$GroupsRemove	= array_unique(array_merge($GroupsRemove, $Wiki['groups'][$Group]['groups-remove']));
+			} else {
+				$GroupsAdd		= array_unique(array_merge($GroupsAdd, $Wiki['groups'][$Group]['types-add']));
+				$GroupsRemove	= array_unique(array_merge($GroupsRemove, $Wiki['groups'][$Group]['types-remove']));
+			}
+		}
+
+		if (!$types) {
+			if (array_key_exists('group-remove-self', $Wiki['groups'][$Groupname]))
+			$self = $Wiki['groups'][$Groupname]['group-remove-self'];
+		} else {
+			if (array_key_exists('type-remove-self', $Wiki['types'][$Groupname]))
+			$self = $Wiki['types'][$Groupname]['type-remove-self'];
+		}
+
+		$give	= (in_array($Groupname, $GroupsAdd));
+		$take	= (in_array($Groupname, $GroupsRemove));
+		$both	= ($give or $take);
+		$xor	= ($give xor $take);
+
+		$self	= (isset($self) && !$take) ? ($Actor->isUser($this->TargetUser) && $self) : false;
+
+		$take	= ($take or $self);
+		$both	= ($give or $take);
+
+		switch($action) {
+			default: return false;
+			case 'give':
+			case 'add':
+				return $give;
+			break;
+			case 'take':
+			case 'remove':
+				return $take;
+			break;
+			case 'both':
+				return $both;
+			break;
+			case 'xor':
+				return $xor;
+			break;
+			case 'self':
+				return $self;
+			break;
+		}
+	}
+
+	private function makeCheckboxes($types = false) {
+		global $GlobalVariables;
+		extract($GlobalVariables);
+
+		$HTML_Rights = new HTMLTags();
+		$HTML_Inputs = new UiInputs();
+		$HTML_Rights->setPrintMode(true);
+		$HTML_Inputs->setPrintMode(true);
+
+		$key = ($types) ? 'types' : 'groups';
+
+		$checkBoxes = array();
+
+		foreach ($Wiki[$key] as $Groupname => $Group) {
+			if ($Groupname == 'blocked' && !isset($_GET['block'])) continue;
+
+			$HTML_Rights->open("page_rights_{$key}_list_tr_$Groupname", 'tr');
+			$HTML_Rights->open("page_rights_{$key}_list_td_$Groupname", 'td');
+
+			$Note = "";
+
+			// Checkbox and group name
+			if ($this->permission($Groupname, 'self', $types))	$Note = msg('rights-nb-remove-self-only', 1);
+			if ($this->permission($Groupname, 'xor', $types))	$Note = msg('rights-nb-cannot-be-undone', 1);
+
+			$checkBoxes[$key][$Groupname] = [
+				'checked'	=> $this->TargetUser->isInGroup($Groupname),
+				'label'		=> "<span>" . $Group['msg'] . "</span>"
+			];
+
+			if (
+				($this->TargetUser->isInGroup($Groupname) || !$this->permission($Groupname, 'add', $types)) &&
+				(!$this->TargetUser->isInGroup($Groupname) || !$this->permission($Groupname, 'remove', $types))
+			) {
+				$checkBoxes[$key][$Groupname]['disabled'] = true;
+				$Note = msg('rights-nb-cannot-change', 1);
+			}
+
+			$HTML_Inputs->checkbox($Groupname, $checkBoxes[$key][$Groupname]);
+			$HTML_Rights->close("page_rights_{$key}_list_td_$Groupname");
+
+			// Technical group name
+			$HTML_Rights->open("page_rights_{$key}_list_td_name_$Groupname", 'td');
+			$HTML_Rights->tag('small', [], "($Groupname)");
+			$HTML_Rights->close("page_rights_{$key}_list_td_name_$Groupname", 'td');
+
+			// Notes
+			$HTML_Rights->open("page_rights_{$key}_list_td_note_$Groupname", 'td');
+			if (!empty($Note)) $HTML_Rights->tag('small', [], $Note);
+			$HTML_Rights->close("page_rights_{$key}_list_td_note_$Groupname", 'td');
+
+			$HTML_Rights->close("page_rights_{$key}_list_tr_$Groupname");
+		}
+
+		$HTML_Inputs->setPrintMode(false);
+	}
+
 	public function insert() {
 		global $GlobalVariables;
 		extract($GlobalVariables);
 
 		$HTML_Rights = new HTMLTags();
+		$HTML_Inputs = new UiInputs();
+		$HTML_Inputs->setPrintMode(true);
 
 		if (
 			($this->TargetUser && !$this->TargetUser->exists())
@@ -90,7 +208,7 @@ class Page extends PageBase {
 				$HTML_Rights->setPrintMode(true);
 
 				/* RIGHTSFORM */
-				$HTML_Rights->open('form_rights_selection', 'form', [
+				$HTML_Rights->open('page_rights_form_selection', 'form', [
 					'id'		=> 'rightsform',
 					'method'	=> 'post'
 				]);
@@ -106,52 +224,65 @@ class Page extends PageBase {
 					'value'	=> $this->TargetUser->getName()
 				]);
 
-				// Groups
+				// HEADING Groups
 				$HTML_Rights->heading(msg('rights-section-groups', 1), 'sectiontitle', ['top0']);
 
-				$HTML_Rights->open('div_rights_checkbox_list', 'div', ['class' => $HTML_Rights->class(['checkbox-list'])]);
+				/* TABLE GROUPS */
+				$HTML_Rights->open('page_rights_list_table', 'table', [
+					'id'			=> 'table_groups',
+					'class'			=> $HTML_Rights->class(['positioning-table', 'light-borders', 'thin-borders']),
+					'cellspacing'	=> '0',
+					'cellpadding'	=> '5',
+					'border'		=> '0'
+				]);
 
-				$GroupsAdd		= [];
-				$GroupsRemove	= [];
-				foreach ($Actor->listGroups() as $Group) {
-					$GroupsAdd		= array_unique(array_merge($GroupsAdd, $Wiki['groups'][$Group]['groups-add']));
-					$GroupsRemove	= array_unique(array_merge($GroupsRemove, $Wiki['groups'][$Group]['groups-remove']));
-				}
+				$this->makeCheckboxes();
 
-				if (!isset($_GET['block'])) {
-					$checkBoxes = array();
-					foreach ($Wiki['groups'] as $Groupname => $Group) {
-						if (
-							(!$this->TargetUser->isInGroup($Groupname) && in_array($Groupname, $GroupsAdd)) ||
-							($this->TargetUser->isInGroup($Groupname) && in_array($Groupname, $GroupsRemove))
-						)
-							$checkBoxes[$Groupname] = [
-								'checked'	=> $this->TargetUser->isInGroup($Groupname),
-								'label'		=> '<span>' . $Group['msg'] . '</span> <small>(' . $Groupname . ')</small>'
-							];
-						elseif (in_array($Groupname, $GroupsAdd) || in_array($Groupname, $GroupsRemove))
-							$checkBoxes[$Groupname] = [
-								'checked'	=> $this->TargetUser->isInGroup($Groupname),
-								'disabled'	=> true,
-								'label'		=> '<span>' . $Group['msg'] . '</span> <small>(' . $Groupname . ')</small>'
-							];
-					}
-				} else {
-					$checkBoxes['blocked'] = [
-						'checked'	=> $this->TargetUser->isInGroup('blocked'),
-						'label'		=> '<span>' . msg('group-blocked', 1) . '</span> <small>(blocked)</small>'
-					];
-				}
+				$HTML_Inputs->setPrintMode(false);
+				$HTML_Rights->close('page_rights_list_table');
+				/* table groups */
 
-				$this->__insertCheckbox($checkBoxes);
-
-				$HTML_Rights->close('div_rights_checkbox_list');
-
-				// Types
+				// HEADING Types
 				$HTML_Rights->heading(msg('rights-section-types', 1), 'sectiontitle', ['top30']);
 
-				$HTML_Rights->close('form_rights_selection');
+				/* TABLE TYPES */
+				$HTML_Rights->open('page_rights_types_list_table', 'table', [
+					'id'			=> 'table_types',
+					'class'			=> $HTML_Rights->class(['positioning-table', 'light-borders', 'thin-borders']),
+					'cellspacing'	=> '0',
+					'cellpadding'	=> '5',
+					'border'		=> '0'
+				]);
+
+				$HTML_Inputs->setPrintMode(true);
+
+				$this->makeCheckboxes(true);
+
+				$HTML_Rights->close('page_rights_types_list_table');
+				/* table types */
+
+				$HTML_Inputs->setPrintMode(false);
+
+				// Notes
+				$HTML_Rights->divClass('invisible-break');
+				$HTML_Rights->tag('textarea', [
+					'name'			=> 'reason',
+					'class'			=> $HTML_Rights->class(['big-textarea', 'Areal', 'top50']),
+					'placeholder'	=> msg('global-ph-reason', 1)
+				]);
+				$HTML_Rights->br('follows-textarea');
+
+				// Submit
+				$HTML_Rights->tag('input', [
+					'type'	=> 'submit',
+					'class'	=> $HTML_Rights->class(['big-submit', 'top10']),
+					'value'	=> msg('rights-btn-submit', 1)
+				]);
+
+				$HTML_Rights->close('page_rights_form_selection');
 				/* rightsform */
+
+				$HTML_Rights->getErrors();
 			break;
 		}
 	}
