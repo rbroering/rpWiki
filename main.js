@@ -192,6 +192,8 @@ $( document ).ready( function() {
 	$( '.check-label' ).click( function() {
 		if ($( this ).hasClass('disabled')) return false;
 
+		$( this ).toggleClass('changed');
+
 		if ($( this ).hasClass('checked')) {
 			$( this ).removeClass('checked').addClass('unchecked');
 			$( this ).attr('data-checked', 'unchecked');
