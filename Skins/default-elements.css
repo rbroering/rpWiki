@@ -96,7 +96,7 @@ div.checkbox-list { display: inline-block; }
 div.checkbox { display: block; }
 input[type="checkbox"].check-hidden { display: none; }
 label.check-label { cursor: pointer; }
-label.check-label div {
+label.check-label > div {
 	height: 20px;
 	width: 20px;
 	margin-right: 10px;
@@ -109,9 +109,15 @@ label.check-label div {
 	display: inline-block;
 	position: relative;
 	top: 5px;
+
+	transition: .1s;
 }
-label.check-label[data-checked="unchecked"] div:hover,
-label.check-label[data-checked="unchecked"].hover div {
+label.check-label.changed > div {
+	background-color: #EBF4FD;
+	border-color: #5579A8;
+}
+label.check-label[data-checked="unchecked"]:not(.disabled) div:hover,
+label.check-label[data-checked="unchecked"].hover:not(.disabled) div {
 	background-image: url('default-images/check-small_hover.png');
 }
 label.check-label[data-checked="checked"] div, label.check-label.checked div {
@@ -122,6 +128,13 @@ label.check-label.disabled {
 	cursor: not-allowed;
 }
 
+/* CHECKBOX TABLE */
+.positioning-table label.check-label {
+	display: flex;
+}
+.positioning-table label.check-label > div {
+	top: 0;
+}
 
 /* RADIOBUTTON */
 div.radio-list { display: inline-block; }
@@ -184,9 +197,6 @@ label.file-upload > input[type="file"] {
 }
 
 /*   PageForm   */
-.pageHeader {
-}
-
 .pageHeader .pageForm {
 	padding: 10px;
 	background: #F6F6F6;
@@ -252,7 +262,7 @@ ul.list {
 ul.list, ul.list li {
 	list-style-type: initial;
 }
-table {
+table:not(.positioning-table) {
 	border: 1px solid #CACACA;
 	border-collapse: collapse;
 }
@@ -260,13 +270,13 @@ thead tr, thead td {
 	font-weight: bold;
 	border-bottom: 2px solid #CACACA;
 }
-tr {
+table:not(.positioning-table) tr {
 	background: #E2E2E2;
 }
-table tbody tr:nth-child(2n - 1) {
+table:not(.positioning-table) tbody tr:nth-child(2n - 1) {
 	background: #D8D8D8;
 }
-tr td {
+table:not(.positioning-table) tr td {
 	padding: 5px 20px 5px;
 	border-right: 1px solid #CACACA;
 	border-bottom: 1px solid #CACACA;
@@ -274,7 +284,7 @@ tr td {
 tr td.h {
 	font-weight: bold;
 }
-td > img {
+table:not(.positioning-table) td > img {
 	transition: .2s;
 	position: absolute;
 }
@@ -287,6 +297,24 @@ td > .placeholder-usericon > img:active {
 	width: 100px;
 	position: relative;
 	z-index: 2;
+}
+
+table.thin-borders {
+	border-style: solid;
+	border-top-width: 1px;
+}
+table.thin-borders td {
+	border-style: solid;
+	border: 0;
+	border-bottom-width: 1px;
+}
+table.light-borders {
+	border-style: solid;
+	border-top-color: #D3D3D3;
+}
+table.light-borders td {
+	border-style: solid;
+	border-bottom-color: #D3D3D3;
 }
 
 #requestsTable_length,

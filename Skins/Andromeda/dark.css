@@ -52,9 +52,13 @@ select.big-select:focus {
     background-color: #1a1a1a;
 }
 
-label.check-label div {
+label.check-label > div {
     background-color: #222222;
     border-color: #757575;
+}
+label.check-label.changed > div {
+    background-color: #212D3A;
+    border-color: #5579A8;
 }
 label.radio-label div {
     background-color: #222222;
@@ -65,14 +69,21 @@ hr {
     background-color: #757575 !important;
 }
 
-table, tr td {
+table:not(.positioning-table), tr td {
     border-color: #808080;
 }
-tr {
+table:not(.positioning-table) tr {
     background: #424242;
 }
-table tbody tr:nth-child(2n-1) {
+table:not(.positioning-table) tbody tr:nth-child(2n-1) {
     background: #555555;
+}
+
+table.light-borders {
+	border-top-color: #444444;
+}
+table.light-borders td {
+	border-bottom-color: #444444;
 }
 
 header#header {
