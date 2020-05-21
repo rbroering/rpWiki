@@ -106,12 +106,33 @@ class User {
 
 
 	/**
+	 * Check if two users are the same
+	 * 
+	 * @param	object	$UserObj
+	 * @return	boolean
+	 */
+	final public function isUser($UserObj) {
+		return ($UserObj->getRandId() === $this->getRandId());
+	}
+
+
+	/**
 	 * Get user's groups and list them in an array
 	 *
 	 * @return	array
 	 */
 	final public function listGroups() {
-		return explode(',', rtrim($this->Data['rights'], ','));
+		global $Wiki;
+
+		$Groups = explode(',', rtrim($this->Data['rights'], ','));
+
+		// Remove deprecated groups
+		foreach ($Groups as $i => $Group) {
+			if (!array_key_exists($Group, $Wiki['groups']))
+				unset($Groups[$i]);
+		}
+
+		return $Groups;
 	}
 
 
