@@ -168,7 +168,7 @@ $Load = [];
 
 		<meta name="viewport" content="width=device-width, initial-scale=<?php echo (isset( $Wiki['config']['viewport']['scale'] )) ? $Wiki['config']['viewport']['scale'] : '1.0'; ?>, user-scalable=<?php echo (isset( $Wiki['config']['viewport']['scalable'] ) && $Wiki['config']['viewport']['scalable'] == false) ? 'no' : 'yes'; ?>" />
 		<?php
-			if (isset( $Wiki['custom']['compability']['web-app'] ) && $Wiki['custom']['compability']['web-app'] == true) {
+			if (isset( $Wiki['custom']['compability']['web-app'] ) && $Wiki['custom']['compatibility']['web-app'] == true) {
 		?>
 <meta name="mobile-web-app-capable" content="yes" />
 		<!-- <meta name="apple-mobile-web-app-capable" content="yes" /> -->

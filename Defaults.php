@@ -320,11 +320,11 @@ $Wiki['custom']['thru_page']['css']	= 'Sys:Main.css';
 
 
 /* On-wiki pages allowed for CSS rendering */
-$Wiki['custom']['thru_page']['allow_css'] = [];
+$Wiki['custom']['thru_page']['allow_css']	= [];
 
 
 /* Compability setting for web apps */
-$Wiki['custom']['compability']['web-app'] = 0;
+$Wiki['custom']['compatibility']['web-app']	= 0;
 
 
 /* License footer text */
