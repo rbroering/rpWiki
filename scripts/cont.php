@@ -137,6 +137,69 @@ if (!function_exists( 'prcon' )) {
 			$str = preg_replace($rShortContent, $redShortContent, $str);
 			//$str = strip_tags($str);
 		}
+		if ($type == 'msg') {
+			/* <br /> */
+			$str = str_replace("\r\n\r\n", '<br /><br />', $str);
+			/* https://codereview.stackexchange.com/questions/9255/bulleted-list-from-dashes */
+			/* UNORDERED LISTS */
+			$str = preg_replace_callback(
+				'/(^\s*\* (.*)$\r*\n*)+/m',
+				function( $match ) {
+					return '<ul>' . preg_replace('/^\s*\* (.*)$/m', '<li>$1</li>', $match[0]) . '</ul>';
+				},
+				$str
+			);
+			/* ORDERED LISTS */
+			$str = preg_replace_callback(
+				'/(^\s*\# (.*)$\r*\n*)+/m',
+				function( $match ) {
+					return '<ol>' . preg_replace('/^\s*\# (.*)$/m', '<li>$1</li>', $match[0]) . '</ol>';
+				},
+				$str
+			);
+			/* LINKS */
+			$str = preg_replace_callback(
+			[ '/\[\[([^\[\]\r\n]+)(?:\|([^\[\]\r\n]+))?\]\]/U' ],
+			function( $match ) {
+				global $dbc;
+
+				$Page = $dbc->prepare( "SELECT COUNT(id) FROM pages WHERE url = :name LIMIT 1" );
+				$Page->execute([
+					':name' => $match[1]
+				]);
+				$Page = $Page->fetch();
+
+				if (empty( $match[2] ))
+					$match[2] = $match[1];
+
+				if ($Page[0] == 1)
+					return al( $match[2], 'page', ['?' => $match[1]], 1 );
+				else
+					return al( $match[2], 'editor', ['?' => $match[1]], ['classes' => ['editlink']] );
+			},
+			$str
+			);
+			/* BOLD AND ITALIC */
+			$str = preg_replace_callback(
+			[ '/\'\'\'(.+)\'\'\'/U', '/\'\'(.+)\'\'/U' ],
+			function( $match ) {
+				$code = '';
+				if (substr( $match[0], 0, 3 ) === "'''" && substr( $match[0], -3, 3 ) === "'''") {
+					$code = '<b>' . $match[1];
+					if (substr( $match[0], 0, 5 ) != "'''''")
+						$code .= '</b>';
+				} else
+					$code .= '<i>' . $match[1] . '</i>';
+				if (substr( $match[0], 0, 5 ) == "'''''" && substr( $match[0], -3, 3 ) == "'''")
+					$code .= '</b>';
+				return $code;
+			},
+			$str
+			);
+
+			return $str;
+		}
+
 		return $str;
 	}
 }

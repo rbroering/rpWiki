@@ -18,6 +18,7 @@ require_once 'Config.php';
 
 require_once $Wiki['dir']['scripts'] . 'data.php';
 require_once $Wiki['dir']['scripts'] . 'func.php';
+require_once $Wiki['dir']['scripts'] . 'cont.php';
 require_once $Wiki['dir']['scripts'] . 'lang.php';
 require_once $Wiki['dir']['scripts'] . 'user.php';
 require_once $Wiki['dir']['scripts'] . 'time.php';

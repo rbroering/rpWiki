@@ -139,9 +139,9 @@ if (!function_exists('msg')) {
 			}
 
 			if ($type == 1)
-				return $sm;
+				return prcon($sm, 'msg');
 			else
-				echo $sm;
+				echo prcon($sm, 'msg');
 		}
 	}
 
