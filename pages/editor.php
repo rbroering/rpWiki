@@ -575,16 +575,18 @@ class Page extends PageBase {
 		global $GlobalVariables;
 		extract( $GlobalVariables );
 
-		$Input['comments']		= (isset( $_POST['allowComments'] )) ? true : false;
-		$Input['content']		= $_POST['pagecontent'];
-		$Input['pagetitle']		= (!empty( $_POST['pagetitle'] )) ? $_POST['pagetitle'] : $this->Page['pagetitle'];
-		$Input['disptitle']		= (!empty( $_POST['disptitle'] )) ? $_POST['disptitle'] : $this->Page['disptitle'];
-		$Input['editcomment']	= (!empty( $_POST['editcomment'] )) ? $_POST['editcomment'] : $this->Editor['AutoNote'];
 		if ($this->Action['create']) {
 			$Input['url']		= $_POST['pageurl'];
 			$this->Page['url']	= $Input['url'];
-		} else
+		} else {
 			$Input['url']		= $this->Page['url'];
+		}
+
+		$Input['comments']		= (isset( $_POST['allowComments'] )) ? true : false;
+		$Input['content']		= $_POST['pagecontent'];
+		$Input['pagetitle']		= (!empty( $_POST['pagetitle'] )) ? $_POST['pagetitle'] : $Input['url'];
+		$Input['disptitle']		= (!empty( $_POST['disptitle'] )) ? $_POST['disptitle'] : $Input['pagetitle'];
+		$Input['editcomment']	= (!empty( $_POST['editcomment'] )) ? $_POST['editcomment'] : $this->Editor['AutoNote'];
 
 		if ($this->Page['exists']) { # check for changes
 			$Test = $dbc->prepare( "SELECT * FROM pages WHERE rid = :id LIMIT 1" );
