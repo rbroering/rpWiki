@@ -1,6 +1,7 @@
 /Config.php
 /secret/
 /deprecated/
+/pages/test.php
 /.htaccess
 
 ## Ignore Visual Studio temporary files, build results, and
