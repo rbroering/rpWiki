@@ -1,6 +1,6 @@
 <?php
 if (!defined('VALIDACCESS')) {
-	exit();
+	exit(-1);
 }
 
 class Page extends PageBase {
