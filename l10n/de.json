@@ -60,6 +60,8 @@
     "editor-btn-rename": "Umbenennen",
     "editor-btn-submit": "Speichern",
     "editor-btn-unhide": "Veröffentlichen",
+    "editor-copying-css": "Das ist $0s CSS. Du kannst die Seite speichern, um es zu kopieren, aber dein jetziges CSS geht dann verloren!",
+    "editor-copying-js": "Das ist $0s JavaScript. Du kannst die Seite speichern, um es zu kopieren, aber dein jetziges JS geht dann verloren!",
     "editor-createpage": "Du erstellst eine Seite.",
     "editor-createpage-url": "Diese Seite existiert noch nicht. ",
     "editor-desc-hide": "Verstecke eine Seite, sodass sie nur von Benutzern in bestimmten Gruppen gesehen werden darf. Eine gewählte Box erlaubt Nutzern der entsprechenden Gruppe das Betrachten. Wenn keine Gruppe ausgewählt ist, dann ist die Seite öffentlich einsehbar.",

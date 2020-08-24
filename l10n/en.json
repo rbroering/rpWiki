@@ -62,6 +62,8 @@
     "editor-btn-rename": "Rename",
     "editor-btn-submit": "Save",
     "editor-btn-unhide": "Publish",
+    "editor-copying-css": "This is $0's CSS. You can save the page to copy it, but your current CSS would be lost!",
+    "editor-copying-js": "This is $0's JavaScript. You can save the page to copy it, but your current JS would be lost!",
     "editor-createpage": "You are creating a page.",
     "editor-createpage-url": "This page does not exist yet. ",
     "editor-desc-hide": "Hide a page so it can only be seen by a selection of groups. A checked box allows users of the according group to view the page. If no group is selected, the page will be public.",

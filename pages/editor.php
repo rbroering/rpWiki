@@ -244,6 +244,18 @@ class Page extends PageBase {
 								'class'	=> 'important',
 								'msg'	=> msg( 'editor-oldversion-edit', 1 )
 							]);
+						
+						if ($this->Namespace['CSS'] && !p( 'edit-strange-css' ) && $this->Page['url'] !== USERNAME)
+							array_push( $Messages, [
+								'class'	=> 'important',
+								'msg'	=> msg( 'editor-copying-css', 1, $this->Page['url'] )
+							]);
+
+						if ($this->Namespace['JS'] && !p( 'edit-strange-js' ) && $this->Page['url'] !== USERNAME)
+							array_push( $Messages, [
+								'class'	=> 'important',
+								'msg'	=> msg( 'editor-copying-js', 1, $this->Page['url'] )
+							]);
 
 						return $Messages;
 					} else
@@ -324,8 +336,8 @@ class Page extends PageBase {
 			$this->Namespace['CSS']	= true;
 			$this->Editor['source']	= 'user';
 
-			if (p( 'edit-strange-css' ) && !empty( $_GET[$this->Param['url']] ))
-				$this->Page['url'] = $_GET[$this->Param['url']];
+			if (p( 'edit-strange-css' ) && !empty( $_GET[$this->Param['url']] )) {
+				$this->Page['url'] = $_GET[$this->Param['url']];}
 			else
 				$this->Page['url'] = $User;
 		}
@@ -485,12 +497,13 @@ class Page extends PageBase {
 		if ($this->Namespace['CSS'] || $this->Namespace['JS']) {
 			$this->Elements['comments'] = false;
 			$this->Elements['titles']	= false;
-			if ($this->Namespace['CSS'])
+			if ($this->Namespace['CSS']) {
 				if (!p( 'edit-strange-css' ))
 					$this->Elements['url']		= false;
-			elseIf ($this->Namespace['JS'])
+			} elseif ($this->Namespace['JS']) {
 				if (!p( 'edit-strange-js' ))
 					$this->Elements['url']		= false;
+			}
 		}
 		if (!empty( $this->CurrentNamespace ))
 			if (key_exists( 'page', $Wiki['namespace'][$this->CurrentNamespace])) {
