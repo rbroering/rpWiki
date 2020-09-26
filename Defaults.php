@@ -323,7 +323,7 @@ $Wiki['custom']['thru_page']['css']	= 'Sys:Main.css';
 $Wiki['custom']['thru_page']['allow_css']	= [];
 
 
-/* Compability setting for web apps */
+/* Compatibility setting for web apps */
 $Wiki['custom']['compatibility']['web-app']	= 0;
 
 
