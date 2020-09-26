@@ -259,7 +259,9 @@ class User {
 			$close = "')";
 		}
 
-		$url = ($this->exists()) ? $Wiki['dir']['usericons'] . $this->Data['usericon'] . $size . '/' . $this->getName() . '.png' : $Wiki['custom']['usericon'];
+		$url = (($this->exists() && !empty($this->Data['usericon'])) || $this->Data['usericon'] === $Wiki['custom']['usericon'])
+			? $Wiki['dir']['usericons'] . $this->Data['usericon'] . $size . '/' . $this->getName() . '.png'
+			: $Wiki['custom']['usericon'];
 
 		return $start . $url . $close;
 	}
@@ -438,6 +440,10 @@ class CurrentUser extends User {
 	final public function getUnreadMessages() {
 		global $dbc;
 
+		// If not logged in: No unread messages
+		if (!$this->isLoggedIn()) return [];
+
+		// If logged in: Fetch unread messages
 		$Messages = $dbc->prepare('SELECT rid FROM comments WHERE page = :page AND hidden = false AND writer != :user AND data NOT IN(:data)');
 		$Messages->execute([
 			':page' => $this->getPageAddress(),
@@ -446,6 +452,6 @@ class CurrentUser extends User {
 		]);
 		$Messages = $Messages->fetchAll();
 
-		return ($this->isLoggedIn()) ? $Messages : [];
+		return $Messages;
 	}
 }
