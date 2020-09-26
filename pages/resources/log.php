@@ -126,6 +126,17 @@ class log extends PageElementBase {
 	public function insert() {
 		global $GlobalImport;
 		extract( $GlobalImport );
+		
+		$PageActions = [
+			'edit',
+			'create',
+			'protect',
+			'unprotect',
+			'hide',
+			'unhide',
+			'allowcomments',
+			'rename'
+		];
 
 		if (!p( 'log-view' ))
 			msg( 'error-permission' );
@@ -264,7 +275,8 @@ class log extends PageElementBase {
 							':type'		=> $Entry['type'],
 							':type_alt'	=> ($Entry['type'] == 'editpage') ? 'create' : ''
 						]);
-						$Entry['old'] = $Entry['old']->fetch()['new'];
+						$Entry['old'] = $Entry['old']->fetch();
+						$Entry['old'] = ($Entry['old']) ? $Entry['old']['new'] : null;
 						// $Entry['old'] = (empty($Entry['old'])) ? 0 : ['verlength'];
 						$LogDiff['len'] = strlen($Entry['new']) - strlen($Entry['old']);
 						if ($LogDiff['len'] === 0)
@@ -393,7 +405,8 @@ class log extends PageElementBase {
 					}
 
 					// Page hidden
-					if (!empty($Entry['page'])) {
+					if (in_array($Entry['type'], $PageActions) && !empty($Entry['page'])) {
+						var_dump($Entry);
 						$Properties = $dbc->prepare("SELECT properties FROM pages WHERE rid = :rid LIMIT 1");
 						$Properties->execute([
 							':rid' => $Entry['page']
