@@ -406,7 +406,6 @@ class log extends PageElementBase {
 
 					// Page hidden
 					if (in_array($Entry['type'], $PageActions) && !empty($Entry['page'])) {
-						var_dump($Entry);
 						$Properties = $dbc->prepare("SELECT properties FROM pages WHERE rid = :rid LIMIT 1");
 						$Properties->execute([
 							':rid' => $Entry['page']

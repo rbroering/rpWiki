@@ -4,6 +4,8 @@ session_start();
 
 define('VALIDACCESS', true);
 
+mb_internal_encoding("UTF-8");
+
 /* Imports the configuration files for setting up the
  * Wiki. Please avoid changing the variables in the
  * Default.php file, override them in Config.php

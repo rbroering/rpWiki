@@ -43,7 +43,7 @@ $Wiki['media-config']['usericon']['extensions-regex'] = "/^(png|jpe?g|gif)$/i";
 $Wiki['uc']['img']['limit']			= 500000;
 
 /* Users: Passwords */
-$Wiki['hashfuncs']['user_pw']['algo']		= PASSWORD_ARGON2I;
+$Wiki['hashfuncs']['user_pw']['algo']		= defined('PASSWORD_ARGON2I') ? PASSWORD_ARGON2I : PASSWORD_DEFAULT;
 
 
 /* URL parameters */
