@@ -259,7 +259,7 @@ class User {
 			$close = "')";
 		}
 
-		$url = ($this->exists() && !empty($this->Data['usericon']))
+		$url = (($this->exists() && !empty($this->Data['usericon'])) || $this->Data['usericon'] === $Wiki['custom']['usericon'])
 			? $Wiki['dir']['usericons'] . $this->Data['usericon'] . $size . '/' . $this->getName() . '.png'
 			: $Wiki['custom']['usericon'];
 
