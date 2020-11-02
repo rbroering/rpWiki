@@ -4,6 +4,8 @@ session_start();
 
 define('VALIDACCESS', true);
 
+mb_internal_encoding("UTF-8");
+
 /* Imports the configuration files for setting up the
  * Wiki. Please avoid changing the variables in the
  * Default.php file, override them in Config.php
@@ -301,7 +303,7 @@ $Load = [];
 			]);
 			$Skin->construct();
 
-			if ($UserPref['bgfx_heavy']) {
+			if (!$Actor->isLoggedIn() || $UserPref['bgfx_heavy']) {
 		?>
 		<!-- For the RuvenProductions website -->
 		<style type="text/css" >
@@ -314,7 +316,7 @@ $Load = [];
 			}
 		</style>
 		<div id="particles-js" ></div>
-		<script type="text/javascript" src="libraries/particles.js/particles.min.js" ></script>
+		<script type="text/javascript" src="libraries/particles.js/particles.js" ></script>
 		<script type="text/javascript" >
 			particlesJS.load('particles-js', 'custom/particles.json', function() {
 				console.log('callback - particles.js config loaded');

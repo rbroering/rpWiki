@@ -144,7 +144,7 @@ class Page extends PageBase {
 					':password'		=> $this->Signup['password'],
 					':rights'		=> $this->Signup['firstGroups'],
 					':signature'	=> '–' . $this->Signup['username'],
-					':usericon'		=> (!empty( $Wiki['custom']['usericon'] )) ? $Wiki['custom']['usericon'] : '',
+					':usericon'		=> '', # (!empty( $Wiki['custom']['usericon'] )) ? $Wiki['custom']['usericon'] : '',
 					':css'			=> '/* This is your CSS. It will only be loaded for you. */',
 					':js'			=> '// This is your JS. It will only be loaded for you.'
 				]);

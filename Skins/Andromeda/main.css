@@ -322,33 +322,11 @@ nav#NavigationPanel.shown {
 }
 
 .navSelector {
-    /* height: 30px; */
-    width: 234px;
-    margin: 10px auto 20px;
-    /* padding: 0 20px;
-	background-color: rgba(255, 255, 255, .6); */
-    border-bottom: 4px solid #5076c2;
-    border-radius: 4px;
-    box-shadow: 0 0 14px #000000;
-    /* overflow-y: hidden; */
-}
-
-.navSelector__label {
-    /* background-image: url( 'images/expand.png' );
-	background-repeat: no-repeat;
-	background-position: center right 10px; */
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    transition: .2s;
-}
-
-
-/* .navSelector:hover .navSelector__label {
-	background-image: url( 'images/collapse.png' );
-} */
-
-.navSelector:hover .navSelector__label {
-    color: #555555;
+	width: 234px;
+	margin: 10px auto 20px;
+	border-bottom: 2px solid #5076c2;
+	border-radius: 8px;
+	box-shadow: 0 0 14px #000000;
 }
 
 .navSelector__label:after {
@@ -362,7 +340,7 @@ nav#NavigationPanel.shown {
     position: relative;
     top: 13px;
     right: 10px;
-    transition: .2s;
+    transition: .15s;
     opacity: .6;
 }
 
@@ -393,20 +371,34 @@ nav#NavigationPanel.shown {
     font-weight: bold;
     line-height: 2;
     cursor: pointer;
+}
+
+.navSelector__label {
+	border-bottom: 0;
+	border-radius: 8px;
     /* transition: .2s; */
+}
+
+.navSelector:hover .navSelector__label {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+    color: #555555;
 }
 
 .navSelector__option:hover {
     background-color: rgba(230, 230, 230, .5);
 }
 
-.navSelector__option:first-of-type {
+.navSelector__list a:first-of-type .navSelector__option,
+.navSelector__list > .navSelector__option:first-of-type {
     border-top: 1px solid #7f7f7f;
 }
 
-.navSelector__option:last-of-type,
-.navSelector__label {
+.navSelector__list a:last-of-type .navSelector__option,
+.navSelector__list > .navSelector__option:last-of-type {
     border-bottom: 0;
+	border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 #navBtns {
@@ -472,7 +464,7 @@ nav#NavigationPanel.shown {
 
 #navBtns .button:hover {
     background-color: rgba(255, 255, 255, .2);
-    box-shadow: 0 0 16px #1a2b3e
+    box-shadow: 0 0 16px #1a2b3e;
 }
 
 #UserPanel {

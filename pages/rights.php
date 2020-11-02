@@ -232,6 +232,8 @@ class Page extends PageBase {
 
 				msg('rights-error-submit', 0, $this->TargetUser->getName());
 			}
+		} else {
+			msg('error');
 		}
 	}
 

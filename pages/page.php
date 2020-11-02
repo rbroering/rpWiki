@@ -26,6 +26,8 @@ class Page extends PageBase {
 				return $this->Buttons;
 			break;
 			case 'subtitle':
+				if (!$this->Page) return false;
+
 				$Date = $dbc->prepare("SELECT * FROM log WHERE page = :page AND type = 'createpage' ORDER BY timestamp LIMIT 1");
 				$Date->execute([
 					':page' => $this->Page['rid']
