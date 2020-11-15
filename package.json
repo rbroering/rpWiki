@@ -1,0 +1,25 @@
+{
+  "name": "rpwiki",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "codemirror": "^5.58.2",
+    "particles.js": "^2.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phtlay/rpWiki.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/phtlay/rpWiki/issues"
+  },
+  "homepage": "https://github.com/phtlay/rpWiki#readme"
+}

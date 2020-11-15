@@ -316,7 +316,7 @@ $Load = [];
 			}
 		</style>
 		<div id="particles-js" ></div>
-		<script type="text/javascript" src="libraries/particles.js/particles.js" ></script>
+		<script type="text/javascript" src="node_modules/particles.js/particles.js" ></script>
 		<script type="text/javascript" >
 			particlesJS.load('particles-js', 'custom/particles.json', function() {
 				console.log('callback - particles.js config loaded');

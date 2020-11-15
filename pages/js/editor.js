@@ -18,7 +18,7 @@ $( document ).ready( function() {
 	}
 
 	require([
-	  "libraries/codemirror/lib/codemirror", "libraries/codemirror/mode/htmlmixed/htmlmixed"
+	  "node_modules/codemirror/lib/codemirror", "node_modules/codemirror/mode/htmlmixed/htmlmixed"
 	], function(CodeMirror) {
 	  CodeMirror.fromTextArea(document.getElementById("Editor"), {
 		lineNumbers: true,

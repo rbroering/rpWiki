@@ -40,8 +40,30 @@
 }
 
 .CodeMirror {
-	height: 500px;
+	height: 500px !important;
+	position: relative;
+	overflow: hidden;
+	background: #F8F8F8 !important;
+	border: 1px solid #D3D3D3;
+	border-radius: 4px;
 	/* font-family: 'Roboto', monospace !important; */
+}
+
+.CodeMirror-gutters {
+	padding: 0 14px 0 0 !important;
+	background-color: #E9E9E9 !important;
+}
+
+.CodeMirror-scroll {
+    font-size: 14px;
+}
+
+.CodeMirror-lines {
+    padding: 8px !important;
+}
+
+.CodeMirror-linenumber {
+    padding: 0 !important;
 }
 
 .editor_desc_box {
