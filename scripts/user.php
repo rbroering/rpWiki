@@ -90,7 +90,7 @@ class User {
 	 * @return	string
 	 */
 	final public function getName() {
-		return $this->Data['username'];
+		return $this->exists() ? $this->Data['username'] : '';
 	}
 
 
@@ -121,8 +121,10 @@ class User {
 	 *
 	 * @return	array
 	 */
-	final public function listGroups() {
+	final public function listGroups() : array {
 		global $Wiki;
+
+		if (!$this->exists()) return [];
 
 		$Groups = explode(',', rtrim($this->Data['rights'], ','));
 
@@ -133,6 +135,20 @@ class User {
 		}
 
 		return $Groups;
+	}
+
+
+	/**
+	 * Get user's groups and list them in a string
+	 * The string will separate the groups with a
+	 * comma.
+	 *
+	 * @param	string	$connector	A string which will glue the groups together
+	 * @param	bool	$trail		Whether to add a trailing connector to the list
+	 * @return	string
+	 */
+	final public function listGroupsInString(string $connector = ',', bool $trail = false) : String {
+		return implode($connector, $this->listGroups()) . ($trail ? $connector : '');
 	}
 
 
@@ -217,7 +233,7 @@ class User {
 				if ($Users && in_array($this->getName(), $Users, true))
 					return true;		// Permission for specified users
 
-				if (in_array('own', $Groups) && !empty($Self) && $Self == $this->getName())
+				if (in_array('own', $Groups) && !empty($Self) && ($Self == $this->getName()) || $Self === $this->getRandId())
 					return true;		// Permission as owner
 
 				foreach ($Groups as $Group) {
@@ -241,9 +257,6 @@ class User {
 	public function getIcon($size = [200, 200], $usecase = false) {
 		global $Wiki;
 
-		$start = "";
-		$close = "";
-
 		if (is_integer($size))
 			$size = [$size];
 		
@@ -254,16 +267,17 @@ class User {
 		$size = '/' . $size;
 		if ($size == '/w200') $size = '';
 
-		if ($usecase == 'cssurl') {
-			$start = "url('";
-			$close = "')";
-		}
-
 		$url = (($this->exists() && !empty($this->Data['usericon'])) || $this->Data['usericon'] === $Wiki['custom']['usericon'])
 			? $Wiki['dir']['usericons'] . $this->Data['usericon'] . $size . '/' . $this->getName() . '.png'
 			: $Wiki['custom']['usericon'];
 
-		return $start . $url . $close;
+		switch ($usecase) {
+			case 'cssurl':
+				$url = "url('$url')";
+			break;
+		}
+
+		return $url;
 	}
 
 
