@@ -6,7 +6,8 @@
   "dependencies": {
     "browserify": "^17.0.0",
     "codemirror": "^5.58.2",
-    "particles.js": "^2.0.0"
+    "particles.js": "^2.0.0",
+    "requirejs": "^2.3.6"
   },
   "devDependencies": {},
   "scripts": {

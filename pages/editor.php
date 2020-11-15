@@ -210,11 +210,11 @@ class Page extends PageBase {
 
 	public $Styles = [
 		'/css/editor.css',
-		'libraries/codemirror/lib/codemirror.css',
+		'node_modules/codemirror/lib/codemirror.css',
 		'/resources/log.css'
 	];
 	public $Scripts = [
-		'libraries/require.js/require.js',
+		//'node_modules/browserify/require.js',
 		'/js/editor.js'
 	];
 

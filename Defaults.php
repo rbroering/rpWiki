@@ -296,7 +296,7 @@ $Wiki['name']['title-start-page']	= $Wiki['name']['wiki-name'];
 
 
 /* Add scripts */
-$Wiki['config']['scripts']			= [ 'var.js.php' ];
+$Wiki['config']['scripts']			= [ 'node_modules/requirejs/require.js', 'var.js.php' ];
 
 
 /* Add styles */

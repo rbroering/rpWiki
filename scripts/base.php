@@ -1,6 +1,14 @@
 <?php
 
-class SkinBase {
+interface SkinInterface {
+
+}
+
+interface PageInterface {
+	public function msg($str);
+}
+
+abstract class SkinBase implements SkinInterface {
 	public $Extension = [];
 
 	public function setup($data = []) {
@@ -32,11 +40,13 @@ class SkinBase {
 	}
 }
 
-class PageBase {
+abstract class PageBase implements PageInterface {
 	private $Target = 0;
 	protected $Extension = '';
 	private $ExtensionFile = '';
 	public $ExtensionScripts = [];
+
+	abstract function msg($str);
 
 	final public function info($str) {
 		global $Wiki;

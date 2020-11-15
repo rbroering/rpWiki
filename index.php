@@ -180,7 +180,6 @@ $Load = [];
 
 		<script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js" ></script>
 		<script type="text/javascript" src="main.js" ></script>
-		<script type="text/javascript" src="ajax.js" ></script>
 		<link rel="stylesheet" type="text/css" href="<?php echo $Wiki['dir']['skins'] ?>general.css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo $Wiki['dir']['skins'] ?>default.css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo $Wiki['dir']['skins'] ?>custom.css.php" />
