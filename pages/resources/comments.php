@@ -17,8 +17,9 @@ class comments extends PageElementBase {
 			$this->Extension['page'] = $Page;
 		elseIf (is_array( $Page )) {
 			$this->Extension['page'] = $Page['page'];
-			$this->Extension['show']['title'] = (isset( $Page['show']['title'] ) && !$Page['show']['title']) ? false : true;
 		}
+
+		$this->Extension['show']['title'] = (isset( $Page['show']['title'] ) && !$Page['show']['title']) ? false : true;
 
 		if (p('comments-view-hidden'))
 			$this->Comments = $dbc->prepare( "SELECT id FROM comments WHERE page = :page AND type != 'reply'" );
