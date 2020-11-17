@@ -2,23 +2,16 @@
 if (!defined('VALIDACCESS')) {
 	exit();
 }
-/*function file_exists_ci($file) {
-    if (file_exists($file))
-		return $file;
-/*
-	$browse = glob(dirname($file) . '/*', GLOB_NOSORT);
-	var_dump($browse);
-    /*foreach ($browse as $compare)
-        if (strtolower($file) === strtolower($compare))
-            return $compare;
 
-    return false;*
-}*/
+require_once("modules/new_comments.php");
+require_once("modules/comments_list.php");
+require_once("modules/replies.php");
+require_once("modules/replies_list.php");
 
 class Page extends PageBase {
 
-	public $Styles	= [ '/css/site.css', '/resources/comments.css', '/resources/log.css' ];
-	public $Scripts	= [ '/resources/comments.js', '/resources/log.js' ];
+	public $Styles	= [ '/resources/new_comments.css', '/resources/log.css' ];
+	public $Scripts	= [ '/resources/new_comments.js', '/resources/log.js' ];
 
 	public function msg( $str ) {
 		switch ($str) {
@@ -37,26 +30,16 @@ class Page extends PageBase {
 		global $GlobalVariables;
 		extract( $GlobalVariables );
 
-		$TestUserParent = new User();
-		$TestUserParent->setUserByName("editorNo1");
-		echo $TestUserParent->getName() . " Permission: ";
-		echo $TestUserParent->hasPermission("editcomments");
+		?>
+		<div style="border: 2px solid brown; border-radius: 10px; padding: 10px; margin: 10px auto 30px; width: calc(100% - 44px);" >
+		Normal text <b>Bold text</b> <strong>Strong text</strong> <em>Emphasized text</em> <small>Small text</small> <i>Italic text</i>
+		<u>Underlined text</u> <s>Strikethrough text</s> <b><i>Bold and italic text</i></b> <span>Span</span>
+		<span style="color: brown;" >Span with red text</span>
+		</div>
+		<?php
 
-		echo "<br />";
-		$TestUserChild = new CurrentUser();
-		echo $TestUserChild->exists() . " ";
-		echo $TestUserChild->getName() . " Permission: ";
-		echo $TestUserChild->hasPermission("editcomments");
-
-		/*$str = 'w42-h60';
-		$str = 'h60';
-		$arr = [];
-		preg_match('/(?:(w)([0-9]+))?(?:-?(h)([0-9]+))?/', $str, $arr);
-		var_dump(array_filter($arr));*/
-
-		#echo bin2hex(random_bytes(32));#password_hash('Yuko', PASSWORD_DEFAULT);
-
-		#echo $_SESSION['user'] . '<br />' . $_SESSION['user_id'];
+		$CL = new CommentsList("Test");
+		$CL->insert();
 	}
 }
 ?>
