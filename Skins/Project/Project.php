@@ -18,13 +18,13 @@ class Skin extends SkinBase {
 					<div id="header_right" >
 						<div id="userLinks" >
 							<?php
-							if ($User) {
+							if ($Actor->isLoggedIn()) {
 								$headerMsgShow = '';
 								if (empty( $UserData['msgcount'] ) || $UserData['msgcount'] == 0) {
 									$headerMsgShow = 'display: none;';
 								}
 							?>
-								<div class="loggedin" ><div id="userIconHeader" class="header-usericon" style="background: url('<?php echo $UserData['usericon']; ?>');" ><a href="<?php echo fl( 'user', ['?' => $UserData['username']] ); ?>" class="fullsize" ></a><a href="<?php echo fl( 'messages' ); ?>" style="<?php echo $headerMsgShow; ?>" ><div id="msgCounter" class="messages-count" ><?php echo $UserData['msgcount']; ?></div></a></div><div id="userNameHeader" class="header-username" ><a href="<?php echo fl( 'user', ['?' => $UserData['username']] ); ?>" ><?php echo $UserData['username']; ?></a></div><div id="logoutLink" class="header-logout" ><a href="<?php echo fl( 'logout' ); ?>" >Log out</a></div></div>
+								<div class="loggedin" ><div id="userIconHeader" class="header-usericon" style="background: url('<?php echo $Actor->getIcon([36, 36]); ?>');" ><a href="<?php echo fl( 'user', ['?' => $UserData['username']] ); ?>" class="fullsize" ></a><a href="<?php echo fl( 'messages' ); ?>" style="<?php echo $headerMsgShow; ?>" ><div id="msgCounter" class="messages-count" ><?php echo $UserData['msgcount']; ?></div></a></div><div id="userNameHeader" class="header-username" ><a href="<?php echo fl( 'user', ['?' => $UserData['username']] ); ?>" ><?php echo $UserData['username']; ?></a></div><div id="logoutLink" class="header-logout" ><a href="<?php echo fl( 'logout' ); ?>" >Log out</a></div></div>
 							<?php
 							} else {
 							?>
