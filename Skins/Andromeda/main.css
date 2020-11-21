@@ -603,12 +603,13 @@ div.maincontent {
 .main.notif {
     max-width: 1200px;
     width: calc(100% - 38px);
-    margin-bottom: 10px;
+    margin: 0 auto 10px;
     padding: 5px;
     background: #FFFFFF;
     border: 1px solid #E0E0E0;
     font-size: 120%;
     color: #454545;
+    text-align: center;
 }
 
 .main.notif.important,
@@ -623,6 +624,10 @@ div.maincontent {
 
 .main.notif a:hover {
     color: #2C2CDD;
+}
+
+#pageheader {
+    text-align: center;
 }
 
 #pageheader .pagetitle {
