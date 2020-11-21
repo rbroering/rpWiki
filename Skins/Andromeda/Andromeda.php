@@ -98,7 +98,7 @@ class Skin extends SkinBase {
 							<a href="<?php echo fl('userlist') ?>" ><div class="button b-userlist" ><?php msg('g-nav-l-userlist') ?></div></a>
 						</div>
 						<div class="button-row" >
-							<a href="<?php echo fl('user', array('?' => $Wiki['nav']['sidebar']['News'], 'p' => 'blogs#list')) ?>" ><div class="button b-news" ><?php msg('g-nav-l-news') ?></div></a>
+							<a href="<?= $Wiki['nav']['sidebar']['News'] ?>" ><div class="button b-news" ><?php msg('g-nav-l-news') ?></div></a>
 							<a href="<?php echo fl('editor') ?>" ><div class="button b-editor" ><?php msg('g-nav-l-editor') ?></div></a>
 						</div>
 					</div>

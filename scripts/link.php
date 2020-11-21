@@ -4,18 +4,27 @@ if (!function_exists( 'fl' )) {
 
 	// FLEXIBLE LINKS
 	function fl ($page, $params = [], $encode = 0) {
-		global $Wiki;
+		global $Wiki, $Param;
+
+		$link = '';
+		$paramchar = '?';
+
+		$KeepParams = [
+			$Param['url']['language'],
+			$Param['url']['skin']
+		];
 	
 		$Rewrites = [
 			'register'	=> 'signup',
 			'site'		=> 'page'
 		];
 
+		foreach ($KeepParams as $KeepParam) {
+			if (array_key_exists($KeepParam, $_GET)) $params[$KeepParam] = $_GET[$KeepParam];
+		}
+
 		if (array_key_exists($page, $Rewrites))
 			$page = $Rewrites[$page];
-
-		$link = '';
-		$paramchar = '?';
 
 		if ($encode === 1 || $encode === true) {
 			foreach( $params as $key => $val ) {

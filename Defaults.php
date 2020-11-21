@@ -48,7 +48,8 @@ $Wiki['hashfuncs']['user_pw']['algo']		= defined('PASSWORD_ARGON2I') ? PASSWORD_
 
 /* URL parameters */
 $Wiki['config']['urlparam']['skin']			= 'skin';
-$Wiki['config']['urlparam']['lang']			= 'lang';
+$Wiki['config']['urlparam']['language']		= 'lang';
+$Wiki['config']['urlparam']['lang']			= $Wiki['config']['urlparam']['language'];
 $Wiki['config']['urlparam']['page']			= 'page';
 $Wiki['config']['urlparam']['user']			= 'user';
 $Wiki['config']['urlparam']['groups']		= 'rights';
@@ -336,7 +337,7 @@ $Wiki['config']['startpage']		= 'Home';
 
 
 /* Account for posting News */
-$Wiki['nav']['sidebar']['News']		= $Wiki['name']['wiki-name'];
+$Wiki['nav']['sidebar']['News']		= 'u/' . $Wiki['name']['wiki-name'] . '?p=blogs#list';
 
 
 /* Account of user who operates the data base (adds a tag) */
