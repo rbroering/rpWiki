@@ -526,24 +526,19 @@ nav#NavigationPanel.shown {
 }
 
 header.header#globalNotifHeader {
-    height: auto;
+    height: 42px;
     width: 100%;
-    margin-top: 53px;
-    margin-bottom: -54px;
-    padding: 10px;
-    background: #EAEAFF;
+    background-image: linear-gradient(45deg, #0bf6e5 0%, #3564a1 100%);
+    box-shadow: 0 10px 10px -10px #B7B7B7;
     color: #666666;
     text-align: center;
     line-height: 22px;
-    display: inline-block;
-    position: fixed;
-    top: 0;
-    z-index: 5;
 }
 
-header.header#globalNotifHeader div,
-header.header#globalNotifHeader span {
-    width: calc(100% - 40px);
+header.header#globalNotifHeader div {
+    width: calc(100% - 62px);
+    padding: 10px;
+    background-color: rgba(255, 255, 255, .6);
     display: block;
     float: left;
 }
@@ -558,8 +553,8 @@ header.header#globalNotifHeader a:hover {
 }
 
 header.header#globalNotifHeader.important {
-    background: #FFE0E0;
-    border-bottom: 1px solid #EE8888;
+    background-image: none;
+    background-color: #EAB2B2;
     color: #EE0000;
 }
 
@@ -569,14 +564,20 @@ header.header#globalNotifHeader.important a {
 }
 
 header.header#globalNotifHeader #notifClose {
-    height: 20px;
-    width: 20px;
-    margin: 1px 0 0 -2px;
-    background: url('images/icons/notifClose.png');
-    opacity: .2;
+    height: 22px;
+    width: 22px;
+    background-image: url('images/icons/notifClose.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 1;
     position: relative;
     float: left;
     cursor: pointer;
+    transition: .1s;
+}
+
+header.header#globalNotifHeader #notifClose:hover {
+    background-color: rgba(255, 255, 255, .4);
 }
 
 div.maincontent {
@@ -591,13 +592,11 @@ div.maincontent {
 
 #main {
     min-height: 800px;
-    /* ******************************************************************* */
     max-width: 1200px;
     width: calc(100% - 38px);
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
     padding: 5px;
     border: 1px solid #E0E0E0;
-    /* #EAEAEA; */
     color: #454545;
 }
 

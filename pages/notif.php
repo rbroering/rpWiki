@@ -17,94 +17,78 @@ class Page extends PageBase {
 		global $GlobalVariables;
 		extract( $GlobalVariables );
 
-		if(isset($User) && p('globalnotif')) {
+		if ($Actor->hasPermission('globalnotif')) {
 
 		$globalNotif = $dbc->query("SELECT * FROM pages WHERE url = 'Sys:GlobalNotif' LIMIT 1");
 		$globalNotif = $globalNotif->fetch();
-		if(!isset($_POST['send']) && !isset($_GET['close'])) {
+		if (!isset($_POST['send']) && !isset($_GET['close'])) {
 			?>
 <form method="post" >
 	<input type="hidden" name="send" /><!-- -->
-	<textarea class="big-textarea bg1-textarea message" name="notifContent" placeholder="Content" ><?php echo $globalNotif['content']; ?></textarea>
+	<textarea class="big-textarea bg1-textarea message" name="notifContent" placeholder="<?= msg('notif-ph-content') ?>" ><?php echo $globalNotif['content']; ?></textarea>
 	<hr style="margin: 10px 0px; background: #EFEFEF;" />
 	<?php
 		$this->__insertRadio( 'type', [
 			'tHeader'	=> [
 				'checked'	=> false,
 				'value'		=> 'notifHeader',
-				'label'		=> 'Header notification'
+				'label'		=> msg('notif-formlabel-type-header', 1)
 			],
 			'tMain'		=> [
 				'checked'	=> true,
 				'value'		=> 'notifMain',
-				'label'		=> 'Page notification'
+				'label'		=> msg('notif-formlabel-type-page', 1)
 			]
 		]);
 	?>
-	<!--<input id="tHeader" type="radio" name="type" value="notifHeader" /><label for="tHeader" >Header notification</label><br />
-	<input id="tMain" type="radio" name="type" value="notifMain" checked="checked" /><label for="tMain" >Page notification</label>-->
 	<hr style="margin: 10px 0px; background: #EFEFEF;" />
 	<?php
 		$this->__insertCheckbox([
 			'importantNotif' => [
 				'checked'	=> false,
-				'label'		=> 'Important'
+				'label'		=> msg('notif-formlabel-mark-as-important', 1)
 			]
 		]);
 	?><br />
-	<input type="submit" class="big-submit top10" value="Send" />
+	<input type="submit" class="big-submit top10" value="<?= msg('notif-formlabel-submit') ?>" />
 	<hr style="margin: 20px 0px; background: #D3D3D3;" />
-	<a href="notif?close" >Close current global notification</a>
+	<a href="notif?close" ><?= msg('notif-close-link') ?></a>
 </form>
 			<?php
-		} elseIf(isset($_POST['send']) && !isset($_GET['close'])) {
+		} elseif (isset($_POST['send']) && !isset($_GET['close'])) {
 			$notifType = $_POST['type'];
-			if($notifType != null) {
+			if ($notifType != null) {
 				$notifContent = str_replace("'", '&apos;', $_POST['notifContent']);
-				if($notifContent != null) {
-					if($notifType == 'notifHeader' || $notifType == 'notifMain') {
-						if(isset($_POST['importantNotif'])) {
-							$important = 'important';
-						} else {
-							$important = '';
-						}
-						if($notifType == 'notifHeader') {
-							$notif = 'header';
-						} elseIf($notifType == 'notifMain') {
-							$notif = 'main';
-						}
+				if ($notifContent != null) {
+					if ($notifType == 'notifHeader' || $notifType == 'notifMain') {
+						$important = isset($_POST['importantNotif']) ? 'important' : $important = '';
+
+						$notif = ($notifType == 'notifHeader') ? 'header' : $notif = 'main';
+
 						$send = $dbc->prepare("UPDATE pages SET content = :content, data1 = :data1, data2 = :data2 WHERE url = :url");
 						$send = $send->execute(array(
-						':content' => $notifContent,
-						':data1' => $notif,
-						':data2' => $important,
-						':url' => 'Sys:GlobalNotif'
+							':content'	=> $notifContent,
+							':data1'	=> $notif,
+							':data2'	=> $important,
+							':url'		=> 'Sys:GlobalNotif'
 						));
-						if($send) {
-							echo 'The global notification has been sent.';
-						} else {
-							echo 'An error occured...';
-						}
-					} else {
-						'Invalid value. <a href="?" >Back</a>';
+
+						msg($send ? 'notif-submit-success' : 'notif-submit-error');
 					}
 				} else {
-					echo 'Please type in a message!';
+					msg('notif-submit-error-no-message');
 				}
 			} else {
-				echo 'Please choose an option. <a href="?" >Back</a>';
+				msg('notif-submit-error-no-option-selected');
 			}
-		} elseIf(isset($_GET['close']) && !isset($_POST['send'])) {
+		} elseif (isset($_GET['close']) && !isset($_POST['send'])) {
 			$send = $dbc->query("UPDATE pages SET data1 = '', data2 = '' WHERE url = 'Sys:GlobalNotif'");
-			if($send == true) {
-				echo 'The global notification has been closed.';
-			} else {
-				echo 'An error occured...';
-			}
+
+			msg($send ? 'notif-close-success' : 'notif-close-error');
 		}
 
 		} else {
-			echo 'You are not allowed to write a global notification.';
+			msg('notif-error-permission');
 		}
 	}
 }

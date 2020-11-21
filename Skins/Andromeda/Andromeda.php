@@ -69,6 +69,18 @@ class Skin extends SkinBase {
 
 				</div>
 			</div>
+			<?php
+			if ($GlobalNotif && !empty( $GlobalNotif['content'] ) && $GlobalNotif['data1'] == 'header') {
+			?>
+			<header id="globalNotifHeader" class="header global notification<?php if (!empty( $GlobalNotif['data2'] )) {
+				echo ' ' . $GlobalNotif['data2'];
+			} ?>" >
+				<div><?php echo prcon( $GlobalNotif['content'] ); ?></div>
+				<div id="notifClose" class="closenotification" onclick="closeNotif(0);" ></div>
+			</header>
+			<?php
+			}
+			?>
 		</header>
 		<nav id="NavigationPanel" class="nav navigation panel" >
 			<div id="NavigationContent" >
@@ -161,18 +173,8 @@ class Skin extends SkinBase {
 		</div>
 <?php
 		}
-		if ($GlobalNotif && !empty( $GlobalNotif['content'] ) && $GlobalNotif['data1'] == 'header') {
 		?>
-		<header id="globalNotifHeader" class="header global notification<?php if (!empty( $GlobalNotif['data2'] )) {
-			echo ' ' . $GlobalNotif['data2'];
-		} ?>" >
-			<div><?php echo prcon( $GlobalNotif['content'] ); ?></div>
-			<div id="notifClose" class="closenotification" onclick="closeNotif(0);" ></div>
-		</header>
-		<?php
-		}
-		?>
-		<div align="center" class="maincontent" onclick="toggleClass('#NavigationPanel', 'shown', 0)" >
+		<div class="maincontent" onclick="toggleClass('#NavigationPanel', 'shown', 0)" >
 			<?php
 				$Notification = array();
 
