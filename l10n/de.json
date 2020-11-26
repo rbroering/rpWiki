@@ -216,6 +216,8 @@
     "messages-openmsg": "Öffnen",
     "messages-readall": "Du hast alle deine Nachrichten gelesen.",
     "messages-unread": "$0 von $1 nicht gelesen",
+    "module-comments-hidden-by": "Dieser Kommentar wurde von [[User:$0|$0]] am $1 versteckt.",
+    "module-comments-latest-edit": "Zuletzt bearbeitet von [[User:$0|$0]] am $1",
     "n-btn-latestactivity": "Aktivitäten",
     "n-btn-yourprofile": "Dein Profil",
     "n-lbl-title": "App Panel",

@@ -222,6 +222,8 @@
     "messages-openmsg": "Open",
     "messages-readall": "You have read all your messages.",
     "messages-unread": "Unread $0 of $1",
+    "module-comments-hidden-by": "This comment has been hidden by [[User:$0|$0]] on $1.",
+    "module-comments-latest-edit": "Last edited by [[User:$0|$0]] on $1",
     "n-btn-latestactivity": "Latest Activity",
     "n-btn-yourprofile": "Your Profile",
     "n-notif-msgs": "You have $0 new message$[|]s. <a href=\"../messages\" >See all your messages here.</a>",
