@@ -8,7 +8,7 @@ require_once("replies_list.php");
  * random ID.
  */
 class Comment {
-	private $id;
+	private $id, $Page, $PageId;
 	private $exists = false;
 	private $Data;
 	private $Replies = null;
@@ -23,14 +23,22 @@ class Comment {
 		global $GlobalImport;
 		extract($GlobalImport);
 
-		$Comment = $dbc->prepare("SELECT * FROM comments WHERE rid = :id LIMIT 1");
+		$Comment = $dbc->prepare("SELECT * FROM comments WHERE rid = :id AND type != 'reply' LIMIT 1");
 		$Comment->execute([
 			':id'	=> $id
 		]);
 		$Comment = $Comment->fetch();
 
+		$Page = $dbc->prepare("SELECT id, `url` FROM pages WHERE `url` = :pageId LIMIT 1");
+		$Page->execute([
+			':pageId'	=> $pageId
+		]);
+		$Page = $Page->fetch();
+
 		if ($Comment) {
 			$this->id		= $id;
+			$this->PageId	= $pageId;
+			$this->Page		= $Page ? $Page['url'] : "";
 			$this->exists	= true;
 			$this->Data		= $Comment;
 
@@ -73,14 +81,42 @@ class Comment {
 	}
 
 	/**
+	 * Returns an array with the name of the user who made
+	 * the latest change to the comment's content and the
+	 * timestamp of the change, or null if it has not been
+	 * changed.
+	 *
+	 * @return object|null
+	 */
+	public function getLatestEdit() {
+		global $dbc;
+
+		$Log = $dbc->prepare("SELECT * FROM log WHERE pageURL = :pageAddress AND page2 = :commentRandId AND type = 'comment-edit' ORDER BY timestamp DESC LIMIT 1");
+		$Log->execute([
+			':pageAddress'		=> $this->PageId,
+			':commentRandId'	=> $this->id
+		]);
+		$Log = $Log->fetch();
+
+		if (!$Log) return null;
+
+		return [
+			'user'		=> $Log['user'],
+			'username'	=> $Log['username'],
+			'timestamp'	=> $Log['timestamp'],
+			'timezone'	=> $Log['timezone']
+		];
+	}
+
+	/**
 	 * Prints the comment
 	 *
-	 * @return void
+	 * @return 
 	 */
-	public function insert() : void {
+	public function insert() {
 		if (!$this->exists) return;
 
-		global $Wiki, $Actor;
+		global $Wiki, $Actor, $dbc;
 
 		$HTML = new HTMLTags();
 		$HTML->setPrintMode(true);
@@ -132,6 +168,23 @@ class Comment {
 
 		$HTML->jumpAnchor("c-$idRand");
 
+		/* HIDDEN COMMENT DETAILS */
+		if ($this->Data['hidden']) {
+			if (!$Actor->hasPermission('comments-view-hidden')) return false;
+
+			$Log = $dbc->prepare(
+				"SELECT user, username, timestamp, timezone FROM log WHERE type = 'comment-hide' AND page = :pageURL AND page2 = :randId ORDER BY timestamp DESC LIMIT 1"
+			);
+			$Log->execute([
+				':pageURL'	=> $this->PageId,
+				':randId'	=> $this->id
+			]);
+			$Log = $Log->fetch();
+
+			$HTML->divClass(['comment_hidden_info'], msg('module-comments-hidden-by', 1, $Log ? [$Log['username'], timestamp($Log['timestamp'], 1)] : []));
+		}
+		/* hidden comment details */
+
 		/* USERICON */
 		$HTML->open("div_comment_userinfo_$idRand", 'div', [
 			'class'	=> $HTML->class(['userinfo'])
@@ -166,17 +219,23 @@ class Comment {
 		/* BODY */
 		$HTML->open("div_comment_body_$idRand", 'div', [
 			'class'				=> $HTML->class(['comment_body']),
+			'data-page-address'	=> $this->Page,
 			'data-comment-id'	=> $idRand,
 			'data-writer'		=> $Author,
 			'data-author-groups'=> $this->Author->listGroupsInString(',', true)
 		]);
 
 		/* CONTENT */
+		$classes = ['comment_content'];
+		if (!$Title) $classes[] = 'comment_untitled';
+
 		$HTML->open("div_comment_content_$idRand", 'div', [
-			'class'	=> $HTML->class(['comment_content'])
+			'class'	=> $HTML->class($classes)
 		]);
 
 		/* TEXT */
+		$classes = $Title ? ['comment_title', 'title', 'bw'] : ['comment_title', 'title', 'comment_untitled_title', 'bw'];
+
 		$HTML->setPrintMode(false);
 		echo $HTML->tag('div', [
 			'class'	=> $HTML->class([
@@ -184,12 +243,9 @@ class Comment {
 				($Actor->hasPermission('editcomments', $this->Author->getRandId())) ? 'user-can-edit' : ''
 			])
 		],
-			(($Title)
-				? $HTML->tag('div', [
-					'class'	=> $HTML->class(['comment_title', 'title', 'bw'])
-				], $Title)
-				: ''
-			).
+			$HTML->tag('div', [
+				'class'	=> $HTML->class($classes)
+			], $Title).
 			$HTML->tag('div', [
 				'class' => $HTML->class([
 					'comment_backup',
@@ -270,9 +326,9 @@ class Comment {
 			/* BOTTOMLINKS--HIDELINK */
 			if (p('hidecomments', $Author)) {
 				$HTML->setPrintMode(false);
-				echo $HTML->divClass(['action_button', 'action_hide'],
+				echo $HTML->divClass(['action_button', 'action_hide', $this->Data['hidden'] ? 'action_unhide' : ''],
 				$HTML->span(
-					msg('comm-hide', 1),
+					msg($this->Data['hidden'] ? 'comm-unhide' : 'comm-hide', 1),
 					['activateCommentEditor', 'editlink', 'no-selection'],
 				)
 			);
@@ -372,9 +428,12 @@ class Comment {
 			'class' => $HTML->class(['comment_data'])
 		]);
 
-		$HTML->divClass(['comment_timestamp'],
-			timestamp($this->Data['timestamp'])
-		);
+		// If has been edited
+		if ($EditedBy = $this->getLatestEdit()) {
+			$HTML->span(msg('module-comments-latest-edit', 1, [$EditedBy['username'], timestamp($EditedBy['timestamp'], 1)]), ['comment_edited']);
+		}
+
+		$HTML->span(timestamp($this->Data['timestamp'], 1), ['comment_timestamp']);
 
 		$HTML->close("div_commentdata_$idRand");
 		/* comment data */

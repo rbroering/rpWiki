@@ -22,7 +22,9 @@ class CommentsList {
         global $GlobalImport;
         extract($GlobalImport);
 
-        $Comments = $dbc->prepare("SELECT rid FROM comments WHERE page = :page ORDER BY timestamp DESC LIMIT 10");
+        $AllowHiddenComments = $Actor->hasPermission('comments-view-hidden') ? "" : "AND hidden != 1";
+
+        $Comments = $dbc->prepare("SELECT rid FROM comments WHERE page = :page AND type != 'reply' $AllowHiddenComments ORDER BY timestamp DESC LIMIT 10");
         $Comments->execute([
             ':page' => $pageId
         ]);
@@ -30,6 +32,16 @@ class CommentsList {
 
         $this->Page = $pageId;
         $this->Comments = $Comments;
+    }
+
+    /**
+     * Only comments that can be seen by the current user are counted.
+     * Maximum is the limit for comments initially loaded, 10.
+     * 
+     * @return int The total numbers of comments on a page that can be seen by the user
+     */
+    public function countComments() : int {
+        return count($this->Comments);
     }
 
 
@@ -49,6 +61,8 @@ class CommentsList {
             'id'	=> 'e__Comments_Timeline',
             'class' => $HTML->class(['e__Comments_Timeline'])
         ]);
+
+        $HTML->span($this->countComments(), ['comments_total_amount']);
 
         foreach ($this->Comments as $CommentId) {
             $Comment = new Comment($this->Page, $CommentId['rid']);

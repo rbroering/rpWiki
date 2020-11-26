@@ -23,7 +23,9 @@ class RepliesList {
         global $GlobalImport;
         extract($GlobalImport);
 
-        $Replies = $dbc->prepare("SELECT rid FROM comments WHERE page = :page AND toRid = :toId ORDER BY timestamp ASC LIMIT 10");
+        $AllowHiddenReplies = $Actor->hasPermission('comments-view-hidden') ? "" : "AND hidden != 1";
+
+        $Replies = $dbc->prepare("SELECT rid FROM comments WHERE page = :page AND toRid = :toId $AllowHiddenReplies ORDER BY timestamp ASC LIMIT 10");
         $Replies->execute([
             ':page' => $pageId,
             ':toId' => $toCommentId
