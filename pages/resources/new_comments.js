@@ -3,8 +3,8 @@
 /**
  * 
  */
-function showResponse(comment_body, text = "Lorem ipsum dolor sit amet.") {
-    const comment   = comment_body;//document.querySelector(`#comment_${id}`);
+function showResponse(commentBody, text) {
+    const comment   = commentBody;
     const response  = comment.querySelector('.ajax_response_container');
     const response_text = response.querySelector('.ajax_response_text');
 
@@ -15,76 +15,86 @@ function showResponse(comment_body, text = "Lorem ipsum dolor sit amet.") {
     window.setTimeout(() => response.style.display = 'none', 6402);
 }
 
-function actionSave(comment_body) {
+/**
+ * 
+ */
+function fixTitleAfterEditing(commentBody) {
+    const commentContent    = commentBody.find('.comment_content');
+    const commentTitle      = commentContent.find('.comment_title').text().trim();
+
+    console.log(commentTitle.length);
+
+    if (commentTitle.length)
+        commentContent.removeClass('comment_untitled');
+    else
+        commentContent.addClass('comment_untitled');
+}
+
+/**
+ * 
+ * @param {} commentBody
+ * @param {string} idPage Currently, the page's address is used instead of its ID (@todo)
+ * @param {string} idRand 
+ * @param {string} ecText 
+ * @param {string} ecTitle 
+ */
+function actionSave(commentBody, idPage, idRand, ecText, ecTitle) {
+    /* Empty content */
+    if (!ecText.trim().length) {
+        showResponse(commentBody.get(0), "Your comment can't be empty.");
+    }
+
+    if (ecText.trim() == commentBody.find('.comment_text_backup').html().trim()) {
+        showResponse(commentBody.get(0), "There weren't any changes.");
+    }
+
+    /* AJAX call for saving the changes */
     $.ajax({
-
-    }).done(function() {
-
-    }).catch(function() {
-        
+        method: 'POST',
+        url:    'senddata.php',
+        data:   `category=e__Comment&action=edit&page=${idPage}&pagetype=page&id=${idRand}&c_Title=${ecTitle.trim()}&c_Content=${ecText.trim()}`
+    }).done(function(response) {
+        switch (response) {
+            case 'success':
+                showResponse(commentBody.get(0), "Your changes were saved!");
+                fixTitleAfterEditing(commentBody);
+                commentBody.find('.comment_text_backup').html(ecText);
+            break;
+            default:
+            case 'error_Permission':
+                showResponse(commentBody.get(0), "There was an error saving your changes.");
+            break;
+        }
+    }).fail(function() {
+        showResponse(commentBody.get(0), "There was an error saving your changes.");
     });
 }
 
 /**
- * StackOverflow code snippet by Tim Down <96100>
- * https://stackoverflow.com/questions/4811822/#4812022
+ * 
+ * @param {} commentBody
+ * @param {*} idPage Currently, the page's address is used instead of its ID (@todo)
+ * @param {*} idRand 
  */
-function getSelectionCharacterOffsetWithin(element) {
-    var start = 0;
-    var end = 0;
-    var doc = element.ownerDocument || element.document;
-    var win = doc.defaultView || doc.parentWindow;
-    var sel;
-    if (typeof win.getSelection != "undefined") {
-        sel = win.getSelection();
-        if (sel.rangeCount > 0) {
-            var range = win.getSelection().getRangeAt(0);
-            var preCaretRange = range.cloneRange();
-            preCaretRange.selectNodeContents(element);
-            preCaretRange.setEnd(range.startContainer, range.startOffset);
-            start = preCaretRange.toString().length;
-            preCaretRange.setEnd(range.endContainer, range.endOffset);
-            end = preCaretRange.toString().length;
+function actionChangeVisibility(commentBody, idPage, idRand) {
+    /* AJAX call for saving the changes */
+    $.ajax({
+        method: 'POST',
+        url:    'senddata.php',
+        data:   `category=e__Comment&action=hide&page=${idPage}&pagetype=page&id=${idRand}`
+    }).done(function(response) {
+        switch (response) {
+            case 'success':
+                showResponse(commentBody.get(0), "The comment has been hidden.");
+            break;
+            default:
+            case 'error_Permission':
+                showResponse(commentBody.get(0), "There was an error hiding the comment.");
+            break;
         }
-    } else if ( (sel = doc.selection) && sel.type != "Control") {
-        var textRange = sel.createRange();
-        var preCaretTextRange = doc.body.createTextRange();
-        preCaretTextRange.moveToElementText(element);
-        preCaretTextRange.setEndPoint("EndToStart", textRange);
-        start = preCaretTextRange.text.length;
-        preCaretTextRange.setEndPoint("EndToEnd", textRange);
-        end = preCaretTextRange.text.length;
-    }
-    return { start: start, end: end };
-}
-
-// Move caret to a specific point in a DOM element
-// Recursive
-function SetCaretPosition(el, pos){
-    for (var node of el.childNodes) {
-        if (node.nodeType == Node.TEXT_NODE) {
-            if (node.length >= pos) {
-                var range   = document.createRange(),
-                    sel     = window.getSelection();
-
-                range.setStart(node,pos);
-                range.collapse(true);
-
-                sel.removeAllRanges();
-                sel.addRange(range);
-
-                return -1;
-            } else {
-                pos -= node.length;
-            }
-        } else {
-            pos = SetCaretPosition(node, pos);
-
-            if (pos == -1) return -1;
-        }
-    }
-
-    return pos;
+    }).fail(function() {
+        showResponse(commentBody.get(0), "There was an error hiding the comment.");
+    });
 }
 
 $(document).ready(function() {
@@ -92,6 +102,7 @@ $(document).ready(function() {
         const commentBody   = $(this).parents('.comment_body');
         const railWrapper   = $(this).parents('.rail_wrapper');
         const idRand        = commentBody.attr('data-comment-id');
+        const idPage        = commentBody.attr('data-page-address');
         const editContainer = commentBody.find('.comment_editable_content.user-can-edit');
         
         const ecBoth        = editContainer.find('.comment_text, .comment_title');
@@ -109,8 +120,7 @@ $(document).ready(function() {
             if ($(this).hasClass('action_quit')) {
                 ecText.html(editContainer.find('.comment_text_backup').html());
             } else {
-                showResponse(commentBody.get(0), "Your changes were saved!");
-                editContainer.find('.comment_text_backup').html(ecText.html());
+                actionSave(commentBody, idPage, idRand, ecText.html().trim() || "", ecTitle.text().trim() || "");
             }
         }
 
@@ -129,36 +139,37 @@ $(document).ready(function() {
     $('.comment_editable_content.user-can-edit .comment_text').each(function() {
         $(this).keydown(function(e) {
             if (e.keyCode === 13) {
-                var offset = getSelectionCharacterOffsetWithin(this).start;
-                document.execCommand('insertHTML', false, '<br />');
-                SetCaretPosition(this, offset + 1);
+                document.execCommand('insertHTML', false, '<br />\r\n');
                 return false;
             }
         });
 
-        this.addEventListener("input", function() {
-            var offset = getSelectionCharacterOffsetWithin(this).start;
+        $(this).on("input inputchange paste", function() {
+            var allowed = [
+                "B",
+                "BR",
+                "DIV",
+                "EM",
+                "I",
+                "STRONG",
+                "U"
+            ];
 
-            this.innerHTML = this.innerHTML.replace(/(\r\n|\r|\n)/g, "<br />");
-            this.innerHTML = this.innerHTML.replaceAll(/<(?<tag>\w+)(?<attr> .*?)?>(.*)<\/\k<tag>>/gs, function(match, tag, attr, content) {
-                var allowed = [
-                    "b",
-                    "br",
-                    "div",
-                    "em",
-                    "i",
-                    "strong",
-                    "u"
-                ];
+            for (var el of this.getElementsByTagName("*")) {
+                var remove = !allowed.includes(el.tagName);
 
-                let alt = allowed.includes(tag);
+                if (el.tagName == "DIV" && el.attributes.length) remove = true;
 
-                if (tag == 'div' && attr && attr.length) alt = false;
-
-                return (alt) ? match : "";
-            });
-
-            SetCaretPosition(this, offset);
+                if (remove) el.remove();
+            }
         });
+    });
+
+    $('.comment .action_hide').on('click', function() {
+        const commentBody   = $(this).parents('.comment_body');
+        const idRand        = commentBody.attr('data-comment-id');
+        const idPage        = commentBody.attr('data-page-address');
+
+        actionChangeVisibility(commentBody, idPage, idRand);
     });
 });
