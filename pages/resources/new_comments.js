@@ -151,6 +151,7 @@ $(document).ready(function() {
                 "DIV",
                 "EM",
                 "I",
+                "S",
                 "STRONG",
                 "U"
             ];
@@ -166,10 +167,21 @@ $(document).ready(function() {
     });
 
     $('.comment .action_hide').on('click', function() {
-        const commentBody   = $(this).parents('.comment_body');
-        const idRand        = commentBody.attr('data-comment-id');
-        const idPage        = commentBody.attr('data-page-address');
+        const commentBody = $(this).parents('.comment_body');
+        const idRand = commentBody.attr('data-comment-id');
+        const idPage = commentBody.attr('data-page-address');
 
         actionChangeVisibility(commentBody, idPage, idRand);
+    });
+
+    $('.comment .action_reply').on('click', function() {
+        const commentBody = $(this).parents('.comment_body');
+        const comment = commentBody.parents('.comment');
+        const newreply = comment.get(0).querySelector('.comment_new_reply_editor');
+        const idRand = commentBody.attr('data-comment-id');
+        const idPage = commentBody.attr('data-page-address');
+
+        $(newreply).slideDown(200);
+        newreply.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 });

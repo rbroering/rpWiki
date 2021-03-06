@@ -440,12 +440,82 @@ class Comment {
 
 		$this->insertReplies();
 
+		/* NEWREPLY AREA */
+		$HTML->open("div_comment_newreplyeditor_$idRand", 'div', [
+			'class'	=> $HTML->class(['comment_new_reply_editor'])
+		]);
+
+		$HTML->jumpAnchor("comment_{$idRand}__newreply");
+
+		/* NEWREPLY */
+		$HTML->open("div_newreply_$idRand", 'div', [
+			'id'	=> $idRand,
+			'class'	=> $HTML->class(['reply'])
+		]);
+
+		/* NEWREPLY USERINFO */
+		$HTML->open("div_newreply_userinfo_$idRand", 'div', [
+			'class'	=> $HTML->class(['userinfo'])
+		]);
+
+		$HTML->setPrintMode(false);
+		echo $HTML->a(
+			fl('user', ['?' => $Actor->getName()]),
+			['title' => $Actor->getName()],
+
+			$HTML->tag('div', [
+				'class' => $HTML->class(['usericon']),
+				'style'	=> $HTML->style([
+					'background-image' => $Actor->getIcon(50, 'cssurl')
+				])
+			])
+		);
+
+		/*
+		if (!empty($UserTag)) {
+			if (!array_key_exists('class', $UserTag) || !is_array($UserTag['class']))
+				$class = $UserTag['class'] = [];
+
+			echo $HTML->tag('div', [
+				'class'	=> $HTML->class(array_merge(['usertag'], $UserTag['class'])),
+				//'style' => $HTML->style([])
+			], $UserTag['label']);
+		}
+		*/
+		$HTML->setPrintMode(true);
+
+		$HTML->close("div_newreply_userinfo_$idRand");
+		/* newreply userinfo */
+
+		/* NEWREPLY BODY */
+		$HTML->open("div_newreply_body_$idRand", 'div', [
+			'class'				=> $HTML->class(['reply_body']),
+			'data-writer'		=> $Actor->getName(),
+			'data-author-groups'=> $Actor->listGroupsInString(',', true)
+		]);
+
+		/* NEWREPLY CONTENT */
+		$HTML->open("div_newreply_content_$idRand", 'div', [
+			'class'	=> $HTML->class(['reply_content'])
+		]);
+		$HTML->close("div_newreply_content_$idRand");
+		/* newreply content */
+
+		$HTML->close("div_newreply_body_$idRand");
+		/* newreply body */
+
+		$HTML->close("div_newreply_$idRand");
+		/* newreply */
+
+		$HTML->close("div_comment_newreplyeditor_$idRand");
+		/* newreply area */
+
 		$HTML->markLastElem();
 		$HTML->close("div_comment_$idRand");
 
 		$HTML->brClear();
-		#$HTML->br();
+		$HTML->br();
 		$HTML->getErrors();
-		#$HTML->printStats();
+		$HTML->printStats();
 	}
 }
