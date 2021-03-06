@@ -13,6 +13,15 @@ mb_internal_encoding("UTF-8");
 */
 
 include_once 'Defaults.php';
+
+if (!file_exists('Config.php')) {
+	exit(
+		"This wiki has no configuration file yet. ".
+		"If you are a site administrator, please ".
+		"create a Config.php file to get this wiki running."
+	);
+}
+
 require_once 'Config.php';
 
 

@@ -33,6 +33,7 @@ class Login {
 class Page extends PageBase {
 	private $Signup = array();
 	private $Checks = true;
+	private $Created = false;
 	private $Errors = array();
 
 	public function msg( $str ) {
@@ -50,7 +51,9 @@ class Page extends PageBase {
 	private function signup() {
 		global $GlobalVariables;
 		extract( $GlobalVariables );
+		
 		# $Wiki['hashfuncs']['user_pw']['algo']
+		
 		if (!empty( $_POST['user'] ) && !empty( $_POST['pw'] ) && !empty( $_POST['pw2'] )) {
 			$this->Signup['username'] = $_POST['user'];
 			$this->Signup['password'] = $_POST['pw'];
@@ -74,11 +77,11 @@ class Page extends PageBase {
 
 			if (preg_match_all('/[^A-Z0-9\pL\._\- ]/ui', $this->Signup['username'], $matches)) {
 				$this->Checks = false;
-				$this->Errors[] = msg( 'signup-invchar-username', implode(', ', array_unique($matches[0])));
+				$this->Errors[] = msg( 'signup-invchar-username', 1, implode(', ', array_unique($matches[0])));
 			}
 			if (preg_match_all('/[^A-Z0-9\pL\._\- \(\)\/\{\}\/\\,#\+~\*\'´`\"§\$\%\&<>\|=:;\!]/ui', $this->Signup['password'], $matches)) {
 				$this->Checks = false;
-				$this->Errors[] = msg( 'signup-invchar-password', implode(', ', array_unique($matches[0])));
+				$this->Errors[] = msg( 'signup-invchar-password', 1, implode(', ', array_unique($matches[0])));
 			}
 
 			if (strlen( $this->Signup['username'] ) < $Wiki['userdata']['name']['lenmin'] || strlen( $this->Signup['username'] ) > $Wiki['userdata']['name']['lenmax']) {
@@ -134,9 +137,9 @@ class Page extends PageBase {
 				}
 
 				$SQL_User = $dbc->prepare(
-				'INSERT INTO user
-				(rid, username, password, rights, signature, usericon, css, js) VALUES
-				(:rid, :username, :password, :rights, :signature, :usericon, :css, :js)'
+					'INSERT INTO user
+					(rid, username, password, rights, signature, usericon, css, js) VALUES
+					(:rid, :username, :password, :rights, :signature, :usericon, :css, :js)'
 				);
 				$SQL_User = $SQL_User->execute([
 					':rid'			=> $this->Signup['randId'],
@@ -150,10 +153,12 @@ class Page extends PageBase {
 				]);
 
 				if ($SQL_User) {
+					$this->Created = true;
+					
 					$SQL_Pref = $dbc->prepare(
-					'INSERT INTO pref
-					(username, rid, lang) VALUES
-					(:username, :rid, :lang)'
+						'INSERT INTO pref
+						(username, rid, lang) VALUES
+						(:username, :rid, :lang)'
 					);
 					$SQL_Pref = $SQL_Pref->execute([
 						':username' => $this->Signup['username'],
@@ -165,9 +170,9 @@ class Page extends PageBase {
 
 				if ($SQL_User) {
 					$SQL_Page = $dbc->prepare(
-					'INSERT INTO pages
-					(rid, url, pagetitle, disptitle, content, type) VALUES
-					(:rid, :url, :pagetitle, :disptitle, :content, :type)'
+						'INSERT INTO pages
+						(rid, url, pagetitle, disptitle, content, type) VALUES
+						(:rid, :url, :pagetitle, :disptitle, :content, :type)'
 					);
 					$SQL_Page = $SQL_Page->execute(array(
 						':rid' => randId( 10, 'pages' ),
@@ -228,20 +233,18 @@ class Page extends PageBase {
 					msg( 'reg-failed', 0, $Wiki['name']['wiki-name'] );
 				}
 			} else {
-				if (!empty( $this->Errors )) {
-					echo "<ul id=\"errorList\" >\r\n";
-					foreach( $this->Errors as $i => $Error )
-						echo "<li>" . $Error . "</li>\r\n";
-					echo "</ul>";
-				}
+				if (!empty( $this->Errors ))
+					return ["errors" => $this->Errors];
 			}
 
 			$this->Signup['password'] = '';
 			$this->Signup['username'] = '';
 			unset( $this->Signup['username'], $this->Signup['password'], $_POST['user'], $_POST['pw'], $_POST['pw2'] );
-		} else {
-			// FORM
+		} elseif (!empty($_POST)) {
+			return ["errors" => [msg('register-err-requiredtextfields', 1)]];
 		}
+		
+		return [];
 	}
 
 	public function insert() {
@@ -281,10 +284,20 @@ class Page extends PageBase {
 <?php
 		if (p( 'reg' )) {
 			if (!isset( $this->Signup['active'] ) && (empty( $User ) || p( 'reg-while-loggedin' ))) {
-				$this->signup();
-
-				if (!isset( $_POST['send'] ) && !$this->Checks)
-					echo '<span>'; msg( 'reg-introtext', 0, $Wiki['name']['wiki-name'] ); echo '</span>';
+				$SignupAttempt = $this->signup();
+				
+				$HideForm = $this->Created;
+				
+				if (!$HideForm)
+					echo "<span>" . msg('reg-introtext', 1, $Wiki['name']['wiki-name']) . '</span>';
+				
+				if (array_key_exists("errors", $SignupAttempt)) {
+					echo "<ul id=\"errorList\" >\r\n";
+					foreach ($SignupAttempt['errors'] as $errorMessage) echo "<li>" . $errorMessage . "</li>\r\n";
+					echo "</ul>";
+				}
+				
+				if (!$HideForm) {
 ?>
 <form method="post" class="top30" >
 	<input type="hidden" name="send" value="1" /><!-- -->
@@ -297,6 +310,7 @@ class Page extends PageBase {
 	<input type="submit" class="big-submit submit-login top10" value="<?php msg( 'btn-register' ); ?>" />
 </form>
 <?php
+				}
 			} elseIf (!empty( $User ))
 				msg( 'register-err-loggedin' );
 		} else {

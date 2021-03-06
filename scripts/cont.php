@@ -7,7 +7,6 @@ if (!function_exists( 'prcon' )) {
 			/* HEADINGS */
 			$str = "\r\n" . $str;
 			$str = preg_replace_callback(
-			#[ '/(?:\r\n)(={2,6})(.+)\1/' ],
 			[ '/(?:\r\n[\s]*)(={2,6})(.+)\1/' ],
 			function( $match ) {
 				return "\r\n" . '<h' . substr_count( $match[1], '=' ) . ' class="sectiontitle" >' . $match[2] . '</h' . substr_count( $match[1], '=' ) . '>';
@@ -72,7 +71,7 @@ if (!function_exists( 'prcon' )) {
 			);
 			/* TEMPLATES */
 			$str = preg_replace_callback(
-			[ '/(\{)?\{\{([^{}\|\r\n]+)(?:(?:[\r\n\s]*)\|([\w\W]+))?\}\}(\})?/U' ],
+			[ '/(\{)?\{\{([^{}\|\r\n]+)(?:(?:[\r\n\s]*)\|([\w\W]+))?\}\}(\})?/' ],
 			function( $match ) {
 				global $dbc;
 

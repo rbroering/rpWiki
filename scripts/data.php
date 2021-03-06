@@ -4,12 +4,18 @@ if (!defined('VALIDACCESS')) {
 }
 
 if (
-empty( $Wiki['config']['dbc']['host'] ) ||
-empty( $Wiki['config']['dbc']['name'] ) ||
-empty( $Wiki['config']['dbc']['user'] ) ||
-!isset( $Wiki['config']['dbc']['pass'] )
+	empty( $Wiki['config']['dbc']['host'] ) ||
+	empty( $Wiki['config']['dbc']['name'] ) ||
+	empty( $Wiki['config']['dbc']['user'] ) ||
+	!isset( $Wiki['config']['dbc']['pass'] )
 )
-	echo "Fatal error: Could not connect to database. Please check your \$Wiki['config']['dbc'] variables (host, name, user, pass) in Config.php!\n";
+	exit(
+		"Credentials for a connection to a database ".
+		"have not been provided to the wiki yet. If ".
+		"you are a site administrator, please set up ".
+		"a database and make adjustments to Config.php ".
+		"accordingly."
+	);
 else {
 
 try {
@@ -18,11 +24,15 @@ try {
 	$DbUser = $Wiki['config']['dbc']['user'];
 	$DbPass = $Wiki['config']['dbc']['pass'];
 
-$dbc = new PDO("mysql:host=$DbHost;dbname=$DbName", $DbUser, $DbPass, array(PDO::ATTR_PERSISTENT => true, PDO::ATTR_EMULATE_PREPARES => true));
-
+	$dbc = new PDO("mysql:host=$DbHost;dbname=$DbName", $DbUser, $DbPass, array(PDO::ATTR_PERSISTENT => true, PDO::ATTR_EMULATE_PREPARES => true));
 } catch(Exception $e) {
-	echo "Fatal error: Could not connect to database.\nException: <b>001</b><br />\n";
-	exit();
+	exit(
+		"Fatal error: The wiki has been unable to establish ".
+		"a connection to the database using the credentials ".
+		"specified in Config.php. If you are a site administrator, ".
+		"please check for errors with the database and misspellings ".
+		"in the credentials."
+	);
 }
 
 unset( $Wiki['config']['dbc']['host'], $Wiki['config']['dbc']['name'], $Wiki['config']['dbc']['user'], $Wiki['config']['dbc']['pass'] );

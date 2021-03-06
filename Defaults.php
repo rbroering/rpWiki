@@ -213,62 +213,61 @@ $Wiki['select-groups']['protection'] = [
 
 /* Namespaces */
 $Wiki['namespace'] = [
+    'pagelink' => [
+        'autoPrefix'    => 'id',
+        'prefix'        => 'id',
+        'page'          => [
+            'comments'      => false,
+            'customtitle'   => false,
+        ],
+        'groups'        => ['-']
+    ],
 	'inwikilink' => [
 		'autoPrefix'	=> 'w',
 		'prefix'		=> 'w',
-		'page' => [
-			'comments' => false,
-			'customtitle' => false
+		'page'          => [
+			'comments'      => false,
+			'customtitle'   => false
 		],
-		'groups'		=> ['allrights']
+		'groups'		=> ['-']
 	],
 	'aet' => [
 		'autoPrefix'	=> 'AET',
 		'prefix'		=> 'aet',
-		'groups'		=> [
-			'allrights',
-			'helper',
-			'admin'
-		]
+		'groups'		=> ['allrights', 'helper', 'admin']
 	],
 	'blog' => [
 		'autoPrefix'	=> 'Blog',
-		'prefix'		=> 'blog'
+        'prefix'		=> 'blog',
+        'groups'        => ['allrights', 'helper', 'admin', 'own']
 	],
 	'system' => [
 		'autoPrefix'	=> 'System',
-		'prefix' => [
-			'sys',
-			'system'
+		'prefix'        => ['sys', 'system'],
+		'page'          => [
+			'comments'      => false,
+			'customtitle'   => false
 		],
-		'page' => [
-			'comments' => false,
-			'customtitle' => false
-		],
-		'groups' => [
-			'allrights'
-		]
+		'groups'        => ['allrights']
 	],
 	'template' => [
 		'autoPrefix'	=> 'Template',
 		'prefix'		=> 'template',
 		'page'			=> [
-			'comments'	=> false,
-			'customtitle' => false
+			'comments'      => false,
+			'customtitle'   => false
 		],
-		'groups'		=> [
-			'allrights',
-			'helper',
-			'admin'
-		]
+		'groups'		=> ['allrights', 'helper', 'admin']
 	],
 	'user' => [
 		'autoPrefix'	=> 'User',
-		'prefix'		=> 'user'
+		'prefix'		=> 'user',
+		'groups'		=> ['allrights', 'helper', 'admin', 'own']
 	],
 	'help' => [
 		'autoPrefix'	=> 'Help',
-		'prefix'		=> 'help'
+		'prefix'		=> 'help',
+		'groups'		=> ['*']
 	]
 ];
 

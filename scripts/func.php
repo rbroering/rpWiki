@@ -69,7 +69,7 @@ if (!function_exists( 'remIfExists' )) {
 if (!function_exists( 'randstr' )) {
 
 	// RANDOM STRs
-	function randstr ($length, $charsRestriction = 0) {
+	function randstr($length, $charsRestriction = 0) {
 		$chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-';
 		$randnr = '';
 		for ($i = 0; $i != $length; ++$i) {
@@ -82,48 +82,40 @@ if (!function_exists( 'randstr' )) {
 
 // Needed for function randID
 if (!function_exists( 'checkTables' )) {
-	function checkTables( $string, $table ) {
+	function checkTables($string, $table = "log") {
 		global $dbc;
 
-		$find = $dbc->prepare( "SELECT rid FROM :table WHERE rid = :id" );
+		//$find = $dbc->prepare("SELECT `rid` FROM `:table` WHERE `rid` = :rid");
+		$find = $dbc->prepare("SELECT `rid` FROM `$table` WHERE `rid` = :rid");
 		$find->execute([
-			':table'	=> $table,
-			':id'		=> $string
+			//':table'	=> $table,
+			':rid'		=> $string
 		]);
-		return ($find->rowCount() > 0) ? true : false;
+		return $find->rowCount() > 0;
 	}
 }
 
 if (!function_exists( 'randID' )) {
 
 	// RANDOM STRs
-	function randID ($length = 10, $table = 'log') {
+	function randID($length = 10, $table = "log") {
 		$rand = randStr( $length );
 
 		switch ($table) {
-			case 'pages':
-				$table = 'pages';
-			break;
-			case 'comments':
-				$table = 'comments';
-			break;
-			case 'users':
-				$table = 'users';
-			break;
-			case 'requests':
-				$table = 'requests';
-			break;
-			case 'files':
-				$table = 'files';
+			case "log":
+			case "pages":
+			case "comments":
+			case "users":
+			case "requests":
+			case "files":
 			break;
 			default:
-			case 'log':
-				$table = 'log';
+				$table = "log";
 			break;
 		}
 
-		while( checkTables( $rand, $table ) ) {
-			$rand = randStr( $length );
+		while (checkTables($rand, $table)) {
+			$rand = randStr($length);
 		}
 
 		return $rand;
