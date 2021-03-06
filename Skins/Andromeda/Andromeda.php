@@ -104,42 +104,117 @@ class Skin extends SkinBase {
 					</div>
 				</div>
 				<?php
-				if (ur( 'test_group' )) {
+				$ToolnavGrouptools = [
+					[
+						"name" => "requests",
+						"label" => msg('pt-requests', 1),
+						"link" => fl('requests'),
+						"permission" => "requests"
+					],
+					[
+						"name" => "control",
+						"label" => msg('pt-control', 1),
+						"link" => fl('control'),
+						"permission" => "control-edit"
+					],
+					[
+						"name" => "rights",
+						"label" => msg('pt-rights', 1),
+						"link" => fl('rights'),
+						"permission" => "editusergroups"
+					],
+					[
+						"name" => "notif",
+						"label" => msg('pt-notif', 1),
+						"link" => fl('notif'),
+						"permission" => "globalnotif"
+					]
+				];
+
+				$ToolnavPagetools = [];
+				if (in_array($Page->info('url'), ['page', 'site', 'editor']) && !empty($_GET['url'])) {
+					$ToolnavPagetools = [
+						[
+							"name" => "edit",
+							"label" => msg('edit', 1),
+							"link" => fl('editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']]]),
+							"permission" => "p-edit"
+						],
+						[
+							"name" => "versions",
+							"label" => msg('page_versions_text', 1),
+							"link" => fl('page', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], $Wiki['config']['urlparam']['versionindex']]),
+							"permission" => "editusergroups"//"view-versions"
+						],
+						[
+							"name" => "protect",
+							"label" => msg('protect', 1),
+							"link" => fl('editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], 'action' => 'protect']),
+							"permission" => "p-protect"
+						],
+						[
+							"name" => "hide",
+							"label" => msg('hide', 1),
+							"link" => fl('editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], 'action' => 'hide']),
+							"permission" => "p-hide"
+						],
+						[
+							"name" => "rename",
+							"label" => msg('rename', 1),
+							"link" => fl('editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], 'action' => 'rename']),
+							"permission" => "p-rename"
+						]
+					];
+				}
+
+				$ToolnavElements = [
+					'group' => [],
+					'page' => []
+				];
+				foreach($ToolnavGrouptools as $ToolnavElement) {
+					if (!$Actor->hasPermission($ToolnavElement['permission'])) continue;
+
+					$ToolnavElements['group'][] = '<a href="'.$ToolnavElement['link'].'" ><div class="navSelector__option" >'.$ToolnavElement['label'].'</div></a>';
+				}
+				foreach($ToolnavPagetools as $ToolnavElement) {
+					if (!$Actor->hasPermission($ToolnavElement['permission'])) continue;
+
+					$ToolnavElements['page'][] = '<a href="'.$ToolnavElement['link'].'" ><div class="navSelector__option" >'.$ToolnavElement['label'].'</div></a>';
+				}
+
+				if (count($ToolnavElements['group']) || count($ToolnavElements['page']) || $Actor->isInGroup('test_group')) {
 				?>
 				<div class="navToolLists" >
-					<h1>Tools</h1>
+					<h1><?= msg('toolnav-tools-section', 1) ?></h1>
+					<?php if (count($ToolnavElements['group'])) { ?>
 					<div class="navSelector" >
-						<div class="navSelector__label" >Group tools</div>
+						<div class="navSelector__label" ><?= msg('toolnav-group-tools', 1) ?></div>
 						<div class="navSelector__list" >
-							<a href="<?php echo fl( 'requests' ); ?>" ><div class="navSelector__option" ><?php msg( 'pt-requests' ); ?></div></a>
-							<a href="<?php echo fl( 'control' ); ?>" ><div class="navSelector__option" ><?php msg( 'pt-control' ); ?></div></a>
-							<a href="<?php echo fl( 'rights' ); ?>" ><div class="navSelector__option" ><?php msg( 'pt-rights' ); ?></div></a>
-							<a href="<?php echo fl( 'notif' ); ?>" ><div class="navSelector__option" ><?php msg( 'pt-notif' ); ?></div></a>
-							<a href="<?php echo fl( 'page', ['?' => 'Admin'] ); ?>" ><div class="navSelector__option" >More Admin-Tools</div></a>
+							<?php foreach($ToolnavElements['group'] as $ToolElement) echo $ToolElement; ?>
 						</div>
 					</div>
 					<?php
-					if (($Page->info( 'url' ) === 'page' || $Page->info( 'url' ) === 'site' || $Page->info( 'url' ) === 'editor') && !empty( $_GET['url'])) {
+					} if (count($ToolnavElements['page'])) {
 					?>
 					<div class="navSelector" >
-						<div class="navSelector__label" >Page tools</div>
+						<div class="navSelector__label" ><?= msg('toolnav-page-tools', 1) ?></div>
 						<div class="navSelector__list" >
-							<a href="<?php echo fl( 'editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']]] ); ?>" ><div class="navSelector__option" ><?php msg( 'edit' ); ?></div></a>
-							<a href="<?php echo fl( 'page', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], $Wiki['config']['urlparam']['versionindex']] ); ?>" ><div class="navSelector__option" ><?php msg( 'page_versions_text' ); ?></div></a>
-							<a href="<?php echo fl( 'editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], 'action' => 'protect'] ); ?>" ><div class="navSelector__option" ><?php msg( 'protect' ); ?></div></a>
-							<a href="<?php echo fl( 'editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], 'action' => 'hide'] ); ?>" ><div class="navSelector__option" ><?php msg( 'hide' ); ?></div></a>
-							<a href="<?php echo fl( 'editor', ['?' => $_GET[$Wiki['config']['urlparam']['pagename']], 'action' => 'rename'] ); ?>" ><div class="navSelector__option" ><?php msg( 'rename' ); ?></div></a>
+							<?php foreach($ToolnavElements['page'] as $ToolElement) echo $ToolElement; ?>
+						</div>
+					</div>
+					<?php
+					}
+					if ($Actor->isInGroup('test_group')) {
+					?>
+					<div class="navSelector" >
+						<div class="navSelector__label" ><?= msg('toolnav-pinned-pages', 1) ?></div>
+						<div class="navSelector__list" >
+							<div class="navSelector__option" >Empty</div>
 						</div>
 					</div>
 					<?php
 					}
 					?>
-					<div class="navSelector" >
-						<div class="navSelector__label" >Your pages</div>
-						<div class="navSelector__list" >
-							<div class="navSelector__option" >Empty</div>
-						</div>
-					</div>
 				</div>
 				<?php
 				}

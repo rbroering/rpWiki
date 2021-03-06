@@ -1,59 +1,5 @@
 <?php
 
-/*if (!function_exists('ur')) {
-
-	// USER RIGHTS
-	function ur($str, $usernamefunc = 1, $GoT = 0) {
-		// GoT = Group or Type
-		global $dbc;
-		global $User;
-		global $username;
-
-		if($usernamefunc != 1) {
-			$fUser = $usernamefunc;
-		} else {
-			if(isset($username)) {
-				$fUser = $username;
-			} else {
-				if(isset($User)) {
-					$fUser = $User;
-				} else {
-					unset($fUser);
-					return false;
-				}
-			}
-		}
-
-		$query = $dbc->prepare("SELECT * FROM user WHERE username = :username LIMIT 1");
-		$userN = $query->execute(array(':username' => $fUser));
-		$userR = $query->fetch();
-
-		if($GoT === 1) {
-			$userR = $userR['types'];
-		} else {
-			$userR = $userR['rights'];
-		}
-		if(!$userN) {
-			unset($fUser);
-		}
-
-		if($str == '*') {
-			return $userR;
-		} else {
-			if(isset($fUser)) {
-				if(stristr($userR, $str) == true) {
-					return 1;
-				} else {
-					return 0;
-				}
-			} else {
-				return 0;
-			}
-		}
-	}
-
-}*/
-
 if (!function_exists('ur')) {
 
 	// USER RIGHTS
