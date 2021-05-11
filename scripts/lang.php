@@ -39,6 +39,7 @@ if (!function_exists('msg')) {
 		global $msg;
 		global $lang;
 		global $Wiki;
+		global $dbc;
 
 		/* Swapping parameters in misorder */
 		if ((is_array( $type ) || is_string( $type )) && (is_int( $replace ) || is_bool( $replace ))) {
@@ -68,10 +69,20 @@ if (!function_exists('msg')) {
 				$msgEn = json_decode( file_get_contents( dirname( __DIR__ ) . '/' . $Wiki['dir']['langs'] . 'en.json' ) );
 				if (property_exists( $msgEn, $str ))
 					$sm = $msgEn->{$str};
-				else
-					$sm = 'Error: The system message "' . $str . '" is not defined in ' . $lang . '.json' . ($lang == 'en') ? '' : ' or en.json';
+				else {
+					$queryMessagePage = $dbc->prepare('SELECT content FROM pages WHERE LOWER(url) = :address LIMIT 1');
+					$queryMessagePage->execute([
+						':address' => strtolower($Wiki['namespace']['msg']['prefix'][0] .":". $str)
+					]);
+					$WikiMessage = $queryMessagePage->fetch();
+
+					if ($WikiMessage)
+						$sm = $WikiMessage['content'];
+					else
+						$sm = 'Error: The system message "' . $str . '" is not defined in ' . $lang . '.json' . ($lang == 'en') ? '' : ' or en.json';
+				}
 			} else
-				$sm = $msg->{$str};
+				$sm = $WikiMessage['content'] ?? $msg->{$str};
 
 			/* Replacements */
 			# if (is_array( $replace ) && !empty( $replace )) {

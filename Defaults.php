@@ -213,6 +213,17 @@ $Wiki['select-groups']['protection'] = [
 
 /* Namespaces */
 $Wiki['namespace'] = [
+    'msg' => [
+        'autoPrefix'    => 'msg',
+        'prefix'        => ['msg'],
+        'page'          => [
+            'comments'      => false,
+            'customtitle'   => false
+        ],
+        'groups'        => [
+            'allrights'
+        ]
+    ],
     'pagelink' => [
         'autoPrefix'    => 'id',
         'prefix'        => 'id',
