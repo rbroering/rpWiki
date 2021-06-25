@@ -1,8 +1,10 @@
 <?php
 
+$prcon_template_environment_total = 0;
+
 if (!function_exists( 'prcon' )) {
 	// PROCESSING CONTENT
-	function prcon ( $str, $type = 1 ) {
+	function prcon ( $str, $type = 1, $template_environment = [] ) {
 		if ($type == 'p' || $type == 1) {
 			/* HEADINGS */
 			$str = "\r\n" . $str;
@@ -71,34 +73,83 @@ if (!function_exists( 'prcon' )) {
 			);
 			/* TEMPLATES */
 			$str = preg_replace_callback(
-			[ '/(\{)?\{\{([^{}\|\r\n]+)(?:(?:[\r\n\s]*)\|([\w\W]+))?\}\}(\})?/' ],
-			function( $match ) {
-				global $dbc;
+				[ '/(\{)?\{\{([^{}\|\r\n]+)(?:(?:[\r\n\s]*)\|([\w\W]+))?\}\}(\})?/' ],
+				function($match) use ($template_environment) {
+					global $dbc, $prcon_template_environment_total;
 
-				if ($match[1] !== "{" && (!key_exists(5, $match) || $match[5] !== "}")) {
-					$Template = $dbc->prepare( "SELECT * FROM pages WHERE url = :name LIMIT 1" );
-					$Template->execute([
-						':name' => $match[2]
-					]);
-					$Template = $Template->fetch();
+					$TemplateName = $match[2];
 
-					if (empty($match[3]))
-						$match[3] = '{{{1}}}';
-
-					if ($Template) {
-						$replacements = explode('|', $match[3]);
-						foreach ($replacements as $i => $val) {
-							$Template['content'] = str_replace( '{{{' . ($i + 1) . '}}}', $val, $Template['content'] );
+					foreach([
+						'container_depth', // Limit how deep a transclusion may get
+						'container_templates', // Array of templates containing the current template
+						'templates_total', // Count how many templates have been in use yet for the current page load
+					] as $key) {
+						if (!array_key_exists($key, $template_environment)) {
+							switch ($key) {
+								default:
+									$template_environment[$key] = [];
+								break;
+								case 'container_depth':
+								case 'templates_total':
+									$template_environment[$key] = 0;
+								break;
+							}
 						}
-						$Template['content'] = preg_replace('/\<noinclude\>([\w\W]*)\<\/noinclude\>/U', '', $Template['content']);
-						$Template['content'] = preg_replace('/\<includeonly\>([\w\W]*)\<\/includeonly\>/U', '$1', $Template['content']);
-						return str_replace("\r\n", "", prcon( $Template['content'] ));
-					} else
-						return 'Missing template: ' . $match[2];
-				} else
-					return $match[1] . '{{' . $match[2] . '}}';
-			},
-			$str
+					}
+					$template_environment['templates_total'] = $prcon_template_environment_total;
+
+					if ($match[1] !== "{" && (!key_exists(5, $match) || $match[5] !== "}")) {
+						// Template includes itself or is included through one another template or more
+						if (in_array($TemplateName, $template_environment['container_templates'])) {
+							return '<span class="template-exception template-exception-loop" >Template loop detected: <span>' .
+								implode('</span> > <span>', $template_environment['container_templates']) . '</span></span><br>';
+						}
+
+						// Template container depth is too big
+						if ($template_environment['container_depth'] > 10) {
+							return '<span class="template-exception template-exception-depth" >The amount of templates containing '.
+									'templates themselves is too big, please limit to: <span>' . $template_environment['container_depth'] - 1 . '</span><br>';
+						}
+
+						// Template container depth is too big
+						if ($template_environment['templates_total'] > 100) {
+							return '<span class="template-exception template-exception-total" >The amount of templates on the page '.
+									'is too big, please limit to: <span>' . $template_environment['templates_total'] - 1 . '</span><br>';
+						}
+
+						$Template = $dbc->prepare( "SELECT content FROM pages WHERE url = :name LIMIT 1" );
+						$Template->execute([
+							':name' => $TemplateName
+						]);
+						$Template = $Template->fetch();
+
+						if (empty($match[3])) $match[3] = '{{{1}}}';
+
+						if ($Template) {
+							$replacements = explode('|', $match[3]);
+							foreach ($replacements as $i => $val) {
+								$Template['content'] = str_replace( '{{{' . ($i + 1) . '}}}', $val, $Template['content'] );
+							}
+							$Template['content'] = preg_replace('/\<noinclude\>([\w\W]*)\<\/noinclude\>/U', '', $Template['content']);
+							$Template['content'] = preg_replace('/\<includeonly\>([\w\W]*)\<\/includeonly\>/U', '$1', $Template['content']);
+
+							$container_templates = array_merge($template_environment['container_templates'], [$TemplateName]);
+							$new_template_environment = [
+								'container_depth' => count($container_templates) + 1,
+								'container_templates' => $container_templates,
+								'templates_total' => $template_environment['templates_total'] + 1,
+							];
+							$prcon_template_environment_total++;
+
+							return str_replace("\r\n", "", prcon( $Template['content'], 1, $new_template_environment ));
+						} else {
+							return '<span class="template-exception template-exception-missing" >Missing template: <span>' . $TemplateName . '</span></span><br>';
+						}
+					} else {
+						return $match[1] . '{{' . $TemplateName . '}}';
+					}
+				},
+				$str
 			);
 			$str = preg_replace('/\<noinclude\>([\w\W]*)\<\/noinclude\>/U', '$1', $str);
 			$str = preg_replace('/\<includeonly\>([\w\W]*)\<\/includeonly\>/U', '', $str);
