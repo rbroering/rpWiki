@@ -128,8 +128,8 @@ class log extends PageElementBase {
 		extract( $GlobalImport );
 		
 		$PageActions = [
-			'edit',
-			'create',
+			'edit', 'editpage',
+			'create', 'createpage',
 			'protect',
 			'unprotect',
 			'hide',
@@ -165,8 +165,8 @@ class log extends PageElementBase {
 
 			$FirstIndicateHiddenSub = false;
 			foreach ($this->AllEntries as $i => $Entry) {
-				$Data = (!empty($Entry['data'])) ? json_decode($Entry['data'], true) : false;
-				$Data['flags'] = array();
+				$Data = (!empty($Entry['data'])) ? json_decode($Entry['data'], true) : [];
+				if (!array_key_exists('flags', $Data)) $Data['flags'] = [];
 
 				if ($Entry['type'] == 'rights') {
 					$Page = $dbc->prepare( 'SELECT * FROM user WHERE rid = :rid LIMIT 1' );
@@ -415,9 +415,10 @@ class log extends PageElementBase {
 						if (!is_array($Properties)) $Properties = [];
 
 						if (array_key_exists('hide_options', $Properties)) {
-							if (in_array('hide_in_log', $Properties['hide_options']))
+							if (in_array('hide_in_log', $Properties['hide_options'])) {
 								$Data['flags'][] = 'hidden';
 								$Data['flags'][] = 'hideoption_hide-in-log';
+							}
 						}
 					}
 
@@ -428,9 +429,9 @@ class log extends PageElementBase {
 						$Hide = true;
 					elseIf (($Entry['notice'] === 'hide' || substr( $Entry['notice'], -5 ) === '|hide') && p( 'log-view-hidden' ))
 						$Entry['hidden'] = true;*/
-					if ($Data && in_array('hidden', $Data['flags']) && !p('log-view-hidden'))
+					if (in_array('hidden', $Data['flags']) && !p('log-view-hidden')) {
 						$Hide = true;
-					elseIf ($Data && in_array('hidden', $Data['flags']) && p('log-view-hidden')) {
+					} elseif (in_array('hidden', $Data['flags']) && p('log-view-hidden')) {
 						$Entry['hidden'] = true;
 						#$FirstIndicateHiddenSub = true;
 					}
@@ -459,7 +460,7 @@ class log extends PageElementBase {
 				$classes .= 'second-item ';
 			echo rtrim( $classes );
 			?>" >
-				<span class="time" ><?php echo timestamp( $Entry['timestamp'] ); ?></span><span class="time-sep" >:</span>
+				<span class="time" ><?php timestamp( $Entry['timestamp'] ); ?></span><span class="time-sep" >:</span>
 				<span class="desc" ><?php echo $LogMsg; if (!empty( $LogDiff['show'] )) echo ' <span style="color: ' . $LogDiff['ppn'] . $LogDiff['bold'] . ';" >(' . $LogDiff['len'] . ')</span>'; ?></span>
 				<?php
 					if ($this->Extension['ShowVersionLink'] && $LogOptions['ShowVersionLink']) {

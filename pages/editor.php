@@ -8,15 +8,17 @@ class WikiPage {
 	final public function __construct() {
 		// Defaults
 		$this->Page = [
-			'exists'	=> false,
-			'title'		=> '',
-			'heading'	=> '',
 			'content'	=> '',
-			'comments'	=> true
+			'comments'	=> true,
+			'exists'	=> false,
+			'heading'	=> '',
+			'hidden'	=> [],
+			'protected'	=> [],
+			'title'		=> '',
 		];
 	}
 
-	final public function set_page( $id_name ) {
+	final public function setPage($id_name) {
 		if (!empty( $id_name )) {
 			global $GlobalImport;
 			extract( $GlobalImport );
@@ -103,31 +105,43 @@ class WikiPage {
 		return $this->Page['exists'];
 	}
 
-	final public function get_namespace() {
+	final public function getAttribute($attr) {
+		return $this->Page[$attr];
+	}
+
+	final public function getNamespace() {
 		if (!empty( $this->Page['namespace'] ))
 			return $this->Page['namespace'];
 		else
 			return false;
 	}
 
-	public function user_can_read() {
-		if (!empty( $this->Page['protect'] )) {
-			$InGroup = 0;
-			foreach ($this->Page['hidden'] as $Group)
-				if (ur( $Group ))
-					$InGroup++;
+	public function userCanView() {
+		global $Actor;
 
-			if ($InGroup === 0) {
-				foreach ($this->Page['hidden'] as $i => $Group)
-					$this->Page['hidden'][$i] = msg('group-' . $Group, 1);
+		if (!empty($this->Page['hidden'])) {
+			$canRead = false;
 
-				$this->MsgError = msg( 'editor-permission-protection', 1, [ rtrim(implode( ', ', $this->Page['protect'] ), ', ') ] );
-				return false;
+			foreach($this->Page['hidden'] as $Group) {
+				if ($Actor->isInGroup($Group)) {
+					$canRead = true;
+					break;
+				}
 			}
+
+			if (!$canRead) {
+				foreach ($this->Page['hidden'] as $i => $Group) {
+					$this->Page['hidden'][$i] = msg('group-' . $Group, 1);
+				}
+			}
+
+			return $canRead;
 		}
+
+		return true;
 	}
 
-	public function user_can_edit( $text = false ) {
+	public function userCanEdit($text = false) {
 		global $GlobalImport;
 		extract( $GlobalImport );
 
@@ -145,8 +159,8 @@ class WikiPage {
 				return true;
 
 			// Check whether user is allowed to edit pages in that namespace
-			if ($this->get_namespace()) {
-				$Namespace	= $Wiki['namespace'][$this->get_namespace()];
+			if ($this->getNamespace()) {
+				$Namespace	= $Wiki['namespace'][$this->getNamespace()];
 				$InGroup	= 0;
 				if (!empty( $Namespace['groups'] ) && (is_array( $Namespace['groups'] ) || is_string( $Namespace['groups'] ))) {
 					if (is_string( $Namespace['groups'] ))
@@ -164,11 +178,10 @@ class WikiPage {
 
 			// Check if page is protected and user is in allowed groups
 			if ($this->exists() && !empty( $this->Page['protect'] )) {
-
 				$InGroup = 0;
+
 				foreach ($this->Page['protect'] as $Group)
-					if (ur( $Group ))
-						$InGroup++;
+					if (ur( $Group )) $InGroup++;
 
 				if ($InGroup === 0) {
 					foreach ($this->Page['protect'] as $i => $Group)
@@ -185,8 +198,7 @@ class WikiPage {
 			return false;
 		}
 
-		if ($text && !empty($this->MsgError))
-			return $this->MsgError;
+		if ($text && !empty($this->MsgError)) return $this->MsgError;
 	}
 
 	final public function data($index) {
@@ -270,8 +282,7 @@ class Page extends PageBase {
 	public function __construct() {
 		$this->WP = new WikiPage();
 
-		if (!empty($_GET['url']))
-			$this->WP->set_page($_GET['url']);
+		if (!empty($_GET['url'])) $this->WP->setPage($_GET['url']);
 
 		// SET PARAMETERS
 		$this->Param = [
@@ -724,8 +735,18 @@ class Page extends PageBase {
 		global $GlobalVariables;
 		extract( $GlobalVariables );
 
-		if ($this->WP->user_can_edit()) {
-			switch ($this->ActionCurrent) {
+		if (!$this->WP->userCanView()) {
+			msg('editor-permission-hidden',
+				rtrim(implode(', ', $this->WP->getAttribute('hidden')), ', '));
+			return false;
+		}
+
+		if (!$this->WP->userCanEdit()) {
+			echo $this->WP->userCanEdit(true);
+			return false;
+		}
+
+		switch ($this->ActionCurrent) {
 			default:
 			case 'create':
 			case 'edit':
@@ -1161,11 +1182,10 @@ class Page extends PageBase {
 			</form>
 						<?php
 						}
-					} else
+					} else {
 						msg( 'editor-permission-rename' );
+					}
 				break;
 			}
-		} else
-			echo $this->WP->user_can_edit(true);
 	}
 }
