@@ -93,7 +93,6 @@ $( document ).ready(function() {
 	var ability_hover = false;
 	$( '.navSelector' ).on( 'mouseenter', function() {
 		ability_hover = true;
-		console.log( 'Hover activated' );
 	});
 	$( '.navSelector' ).click( function() {
 		if (ability_hover == false) {
