@@ -136,7 +136,9 @@ $Wiki['groups'] = [
             'blocked',
             'test_group'
         ],
-        'group-remove-self'     => true,
+        'groups-remove-self'     => [
+            'helper'
+        ],
         'types-add'         => [
             'hidden',
             'nomsg',
@@ -157,21 +159,25 @@ $Wiki['groups'] = [
             'blocked',
             'test_group'
         ],
-        'group-remove-self'     => true,
+        'groups-remove-self'     => [
+            'admin'
+        ],
         'types-add'         => [
             'hidden'
         ],
         'types-remove'      => [
-            'hidden',
+            'hidden'
         ]
     ],
     'blocked' => [
-        'group-remove-self' => false
+        'groups-remove-self' => []
     ],
     'test_group' => [
         'show-on-userpage'	=> false,
         'show-in-log'		=> false,
-        'group-remove-self' => true
+        'groups-remove-self' => [
+            'test_group'
+        ]
     ]
 ];
 

@@ -48,6 +48,13 @@ class Page extends PageBase {
 		$GroupsRemove	= [];
 
 		foreach ($Actor->listGroups() as $Group) {
+			if ($Actor->isUser($this->TargetUser)) {
+				if (!$types) {
+					$GroupsAdd		= array_unique(array_merge($GroupsAdd, $Wiki['groups'][$Group]['groups-add-self'] ?? []));
+					$GroupsRemove	= array_unique(array_merge($GroupsRemove, $Wiki['groups'][$Group]['groups-remove-self'] ?? []));
+				}
+			}
+
 			if (!$types) {
 				$GroupsAdd		= array_unique(array_merge($GroupsAdd, $Wiki['groups'][$Group]['groups-add']));
 				$GroupsRemove	= array_unique(array_merge($GroupsRemove, $Wiki['groups'][$Group]['groups-remove']));
@@ -58,11 +65,11 @@ class Page extends PageBase {
 		}
 
 		if (!$types) {
-			if (array_key_exists('group-remove-self', $Wiki['groups'][$Groupname]))
-			$self = $Wiki['groups'][$Groupname]['group-remove-self'];
+			if (array_key_exists('groups-remove-self', $Wiki['groups'][$Groupname]))
+			$self = $Wiki['groups'][$Groupname]['groups-remove-self'];
 		} else {
 			if (array_key_exists('type-remove-self', $Wiki['types'][$Groupname]))
-			$self = $Wiki['types'][$Groupname]['type-remove-self'];
+			$self = $Wiki['types'][$Groupname]['type-remove-self'] ? [$Groupname] : [];
 		}
 
 		$give	= (in_array($Groupname, $GroupsAdd));
@@ -70,7 +77,8 @@ class Page extends PageBase {
 		$both	= ($give or $take);
 		$xor	= ($give xor $take);
 
-		$self	= (isset($self) && !$take) ? ($Actor->isUser($this->TargetUser) && $self) : false;
+		$self	= (isset($self) && !$take) ? ($Actor->isUser($this->TargetUser) && in_array($Group, $self)) : false;
+
 
 		$take	= ($take or $self);
 		$both	= ($give or $take);
@@ -79,11 +87,11 @@ class Page extends PageBase {
 			default: return false;
 			case 'give':
 			case 'add':
-				return $give;
+				return $self || $give;
 			break;
 			case 'take':
 			case 'remove':
-				return $take;
+				return $self || $take;
 			break;
 			case 'both':
 				return $both;
