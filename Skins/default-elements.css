@@ -113,7 +113,7 @@ label.check-label > div {
 	transition: .1s;
 }
 label.check-label.changed > div {
-	background-color: #EBF4FD;
+	background-color: #D6E7F7;
 	border-color: #5579A8;
 }
 label.check-label[data-checked="unchecked"]:not(.disabled) div:hover,

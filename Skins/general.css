@@ -90,6 +90,15 @@ h3.sectiontitle { font-size: 20px; }
 }
 .list-item:first-child { border-top: 1px solid #EFEFEF; }
 
+
+/* Error messages */
+.template-exception {
+    color: brown;
+}
+.template-exception > span {
+    font-weight: bold;
+}
+
 /* PAGES */
 /* Editor */
 .editingnotice { color: darkred; }
