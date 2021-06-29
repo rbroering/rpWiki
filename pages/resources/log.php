@@ -313,16 +313,19 @@ class log extends PageElementBase {
 						default:
 							$LogMsg = $Entry['type'];
 							break;
+						case 'edit':
 						case 'editpage':
-						case 'createpage':
 							$LogOptions['ShowVersionLink']		= true;
 							$LogOptions['ShowVersionEditLink']	= true;
-							// no break! Go on
-						case 'editpage':
+
 							$LogMsg = msg( 'log-editpage', 1, [$Entry['username'], $PageNamespace] );
 							$LogDiff['show'] = true;
 							break;
+						case 'create':
 						case 'createpage':
+							$LogOptions['ShowVersionLink']		= true;
+							$LogOptions['ShowVersionEditLink']	= true;
+
 							$LogMsg = msg( 'log-createpage', 1, [$Entry['username'], $PageNamespace] );
 							$LogDiff['show'] = true;
 							break;
