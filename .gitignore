@@ -20,6 +20,10 @@ compose-*.yaml
 # rpWiki private files
 secret
 deprecated
+/src/custom/*
+!/src/custom/usericon.png
+!/src/custom/dark.css
+!/src/custom/particles.json
 
 # rpWiki debugging files
 /src/pages/private_*.php
