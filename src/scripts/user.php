@@ -169,7 +169,7 @@ class User {
 	 * @return	array
 	 */
 	final public function listTypes() {
-		return explode(',', rtrim($this->Data['types'], ','));
+		return explode(',', rtrim($this->Data['types'] ?? '', ','));
 	}
 
 
@@ -321,13 +321,14 @@ class CurrentUser extends User {
 	 * Automatically sets user if logged-in
 	 */
 	public function __construct() {
-		if (isset($_SESSION['user']))
+		if (isset($_SESSION['user'])) {
 			$this->setUserByName($_SESSION['user']);
 
-		if ($this->exists())
-			$this->isLoggedIn = true;
-		else {
-			unset($_SESSION['user'], $_SESSION['user_id']);
+			if ($this->exists()) {
+				$this->isLoggedIn = true;
+			} else {
+				unset($_SESSION['user'], $_SESSION['user_id']);
+			}
 		}
 	}
 
@@ -368,7 +369,7 @@ class CurrentUser extends User {
 
 		// Set default Hash Algo if not set in Wiki config
 		if (empty( $Wiki['hashfuncs']['user_pw']['algo'] ))
-				$Wiki['hashfuncs']['user_pw']['algo'] = PASSWORD_DEFAULT;
+			$Wiki['hashfuncs']['user_pw']['algo'] = PASSWORD_DEFAULT;
 
 		// Create class for target user and initiate
 		$TargetUser = new User();

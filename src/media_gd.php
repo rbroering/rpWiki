@@ -1,4 +1,11 @@
 <?php
+
+// THIS DOES NOT WORK RIGHT NOW. PLEASE USE THE DEFAULT media.php INSTEAD.
+
+if (!extension_loaded('gd')) {
+    die("GD Extension is missing.");
+}
+
 require_once( 'getdata.php' );
 
 $allowed_mime_types = [
@@ -53,7 +60,7 @@ function print_image($image, $resize_width = false, $resize_height = false, $res
 		}
     }
 
-    $dst = imagecreatetruecolor($newwidth, $newheight);
+    $dst = @imagecreatetruecolor($newwidth, $newheight);
 	imagealphablending($dst, false);
 	imagesavealpha($dst,true);
 	$transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);

@@ -50,7 +50,7 @@ if (!function_exists('ur')) {
 				return false;
 		}
 
-		$Test = $dbc->prepare( "SELECT * FROM user WHERE username = :username LIMIT 1" );
+		$Test = $dbc->prepare( "SELECT rights, types FROM user WHERE username = :username LIMIT 1" );
 		$Test->execute([
 			':username' => $_User
 		]);
@@ -71,7 +71,7 @@ if (!function_exists('ur')) {
 				return $Test[$Type];
 			else
 				if (!empty($Group))
-					return (stristr( $Test[$Type], $Group )) ? true : false;
+					return (stristr( $Test[$Type] ?? '', $Group )) ? true : false;
 				else
 					return false;
 		} else

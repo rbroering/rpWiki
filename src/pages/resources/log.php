@@ -3,6 +3,7 @@
 class log extends PageElementBase {
 	private $AllEntries	= [];
 	private $Extension	= [];
+	private $Namespace;
 
 	public function __construct( $Data ) {
 		global $GlobalImport;
@@ -278,7 +279,7 @@ class log extends PageElementBase {
 						$Entry['old'] = $Entry['old']->fetch();
 						$Entry['old'] = ($Entry['old']) ? $Entry['old']['new'] : null;
 						// $Entry['old'] = (empty($Entry['old'])) ? 0 : ['verlength'];
-						$LogDiff['len'] = strlen($Entry['new']) - strlen($Entry['old']);
+						$LogDiff['len'] = $Entry['old'] && strlen($Entry['new']) - strlen($Entry['old']);
 						if ($LogDiff['len'] === 0)
 							$LogDiff['pnn'] = '0';
 						elseIf ($LogDiff['len'] > 0)
@@ -413,7 +414,7 @@ class log extends PageElementBase {
 						$Properties->execute([
 							':rid' => $Entry['page']
 						]);
-						$Properties = $Properties->fetch()['properties'];
+						$Properties = $Properties->fetch()['properties'] ?? '';
 						$Properties = json_decode($Properties, true);
 						if (!is_array($Properties)) $Properties = [];
 
@@ -464,7 +465,9 @@ class log extends PageElementBase {
 			echo rtrim( $classes );
 			?>" >
 				<span class="time" ><?php timestamp( $Entry['timestamp'] ); ?></span><span class="time-sep" >:</span>
-				<span class="desc" ><?php echo $LogMsg; if (!empty( $LogDiff['show'] )) echo ' <span style="color: ' . $LogDiff['ppn'] . $LogDiff['bold'] . ';" >(' . $LogDiff['len'] . ')</span>'; ?></span>
+				<span class="desc" ><?php echo $LogMsg; if ($LogDiff['ppn'] && !empty( $LogDiff['show'] )) {
+					echo ' <span style="color: ' . $LogDiff['ppn'] . $LogDiff['bold'] . ';" >(' . $LogDiff['len'] . ')</span>';
+				} ?></span>
 				<?php
 					if ($this->Extension['ShowVersionLink'] && $LogOptions['ShowVersionLink']) {
 						?>

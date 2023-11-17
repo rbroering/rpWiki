@@ -1,6 +1,12 @@
 # Environment
 .env
 
+# Docker
+compose.*.yml
+compose.*.yaml
+compose-*.yml
+compose-*.yaml
+
 # Database
 /data/*
 

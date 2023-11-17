@@ -25,7 +25,7 @@ class Page extends PageBase {
 			?>
 <form method="post" >
 	<input type="hidden" name="send" /><!-- -->
-	<textarea class="big-textarea bg1-textarea message" name="notifContent" placeholder="<?= msg('notif-ph-content') ?>" ><?php echo $globalNotif['content']; ?></textarea>
+	<textarea class="big-textarea bg1-textarea message" name="notifContent" placeholder="<?= msg('notif-ph-content') ?>" ><?php echo $globalNotif['content'] ?? ''; ?></textarea>
 	<hr style="margin: 10px 0px; background: #EFEFEF;" />
 	<?php
 		$this->__insertRadio( 'type', [

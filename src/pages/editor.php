@@ -219,6 +219,10 @@ class Page extends PageBase {
 	private $Version;
 	public $ShowMessage;
 	private $Storage;
+	private $Param;
+	private $Elements;
+	private $Namespace;
+	private $CurrentNamespace;
 
 	public $Styles = [
 		'/css/editor.css',

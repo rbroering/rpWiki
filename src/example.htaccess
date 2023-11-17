@@ -16,7 +16,7 @@ RewriteRule ^([A-Za-z0-9-_]+)$ index.php?page=$1 [QSA,L]
 
 RewriteRule ^u/(.+)$ index.php?page=user&user=$1 [QSA,L]
 RewriteRule ^u2/(.+)$ index.php?page=user2&user=$1 [QSA,L]
-RewriteRule ^p/(.+)$ index.php?page=page&url=$1 [QSA,L]
+RewriteRule ^p/(.+)$ index.php?page=page&address=$1 [QSA,L]
 
 
 # Media

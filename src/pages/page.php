@@ -7,6 +7,7 @@ class Page extends PageBase {
 	private $NamespaceSettings;
 	private $Page;
 	private $Version;
+	private $Compare;
 
 	public $Styles	= [ '/css/page.css', '/resources/comments.css', '/resources/log.css' ];
 	public $Scripts	= [ '/resources/comments.js', '/resources/log.js' ];

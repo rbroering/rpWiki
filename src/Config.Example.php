@@ -150,7 +150,7 @@ $Wiki['select-groups']['protection'] = [
 
 
 /* Namespaces */
-$Wiki['namespace'] = [
+$Wiki['namespace'] = array_merge($Wiki['namespace'], [
     'inwikilink' => [
         'autoPrefix'        => 'w',
         'prefix'            => 'w',
@@ -202,4 +202,4 @@ $Wiki['namespace'] = [
         'autoPrefix'        => 'Hilfe',
         'prefix'            => 'hilfe'
     ]
-];
+]);

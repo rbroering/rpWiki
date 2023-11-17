@@ -2,7 +2,7 @@
 
 class HTMLTags extends HTML {
     /**
-     * Generate a simple break tag <br />.
+     * Generate a simple break tag <br>.
      *
      * @param string $data
      * @return string|false
@@ -13,7 +13,7 @@ class HTMLTags extends HTML {
 
 
     /**
-     * Generate a break tag <br /> with "clear" attribute.
+     * Generate a break tag <br> with "clear" attribute.
      *
      * @param string $clear
      * @return string|false
@@ -104,7 +104,7 @@ class HTMLTags extends HTML {
      * @param string $tag_inner
      * @return string|false
      */
-    public function divIdClassAttr($id = "", $class = [], $tag_attributes = [], $tag_inner) {
+    public function divIdClassAttr($id = "", $class = [], $tag_attributes = [], $tag_inner = "") {
         if (is_string($class))
             $class = [$class];
 

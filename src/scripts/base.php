@@ -6,23 +6,28 @@ interface SkinInterface {
 
 interface PageInterface {
 	public function msg($str);
+	public function insert();
 }
 
 abstract class SkinBase implements SkinInterface {
 	public $Extension = [];
+
+	private $Content;
+	private $Load;
+	private $Var;
 
 	public function setup($data = []) {
 		if (!empty($data)) {
 			foreach ($data as $Key => $Val) {
 				switch ($Key) {
 					case 'content':
-					$this->Content	= $Val;
+						$this->Content = $Val;
 					break;
 					case 'load':
-					$this->Load		= $Val;
+						$this->Load = $Val;
 					break;
 					default:
-					$this->Var		= $Val;
+						$this->Var = $Val;
 					break;
 				}
 			}
