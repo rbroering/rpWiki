@@ -1,0 +1,33 @@
+services:
+  backend:
+    container_name: rpwiki-backend
+    # image: php:8.2-apache
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
+    volumes:
+      - ./apache-site.conf:/etc/apache2/sites-enabled/site.conf:ro
+      - ./src:/var/www/html:ro
+    ports:
+      - ${PORT:-80}:80
+    networks:
+      - rpwiki
+
+  database:
+    container_name: rpwiki-database
+    image: mariadb
+    volumes:
+      - ./data:/var/lib/mysql:Z
+      - ./data-init:/docker-entrypoint-initdb.d/:ro
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-mariadb_root_password}
+      # - MARIADB_RANDOM_ROOT_PASSWORD=1
+      - MARIADB_USER=${MARIADB_USER:-mariadb_rpwiki_user}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD:-mariadb_rpwiki_password}
+      - MARIADB_DATABASE=${MARIADB_DATABASE:-rpwiki}
+    networks:
+      - rpwiki
+
+networks:
+  rpwiki:
+    name: rpWiki

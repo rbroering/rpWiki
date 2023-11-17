@@ -1,13 +1,19 @@
+# Environment
+.env
+
+# Database
+/data/*
+
 # Node.js and npm
-/node_modules/
+/src/node_modules/
 
 # rpWiki configuration files
-/.htaccess
-/Config.php
+/src/.htaccess
+/src/Config.php
 
 # rpWiki private files
-/secret/
-/deprecated/
+secret
+deprecated
 
 # rpWiki debugging files
-/pages/test*.php
+/src/pages/private_*.php
