@@ -465,7 +465,7 @@ class log extends PageElementBase {
 			echo rtrim( $classes );
 			?>" >
 				<span class="time" ><?php timestamp( $Entry['timestamp'] ); ?></span><span class="time-sep" >:</span>
-				<span class="desc" ><?php echo $LogMsg; if ($LogDiff['ppn'] && !empty( $LogDiff['show'] )) {
+				<span class="desc" ><?php echo $LogMsg; if ($LogDiff['show'] && $LogDiff['ppn']) {
 					echo ' <span style="color: ' . $LogDiff['ppn'] . $LogDiff['bold'] . ';" >(' . $LogDiff['len'] . ')</span>';
 				} ?></span>
 				<?php
