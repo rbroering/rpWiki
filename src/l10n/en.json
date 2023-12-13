@@ -424,7 +424,7 @@
     "rights-section-types": "Types",
     "rights-user-does-not-exist": "%msg{error-user-does-not-exist} [[w:rights|%msg{back}]]",
     "search-ph-keywords": "Keywords",
-    "search-result-nr": "There $0[1=is|default=are] $0[0=no|default=$0] result$0[1=|default=s] for '$1'.",
+    "search-result-nr": "There $0[1=is|default=are] $0[0=no|default=$0] result$0[1=|default=s] for \"$1\".",
     "search-results-hidden-num": "$0[0=No|default=$0] result$0[1=|default=s] ha$0[1=s|default=ve] been hidden.",
     "search-submit": "Search",
     "sectionheading-comm": "Comments",

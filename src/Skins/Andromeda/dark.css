@@ -112,7 +112,7 @@ header#header::after {
 }
 
 header#header #logo {
-    background: url('images/custom/wordmark.png') no-repeat 0% 0% / 100% 100% !important
+    background: url('../../custom/Wordmark_dark.png') no-repeat 0% 0% / 100% 100% !important
 }
 
 header#header #userLinks a {
