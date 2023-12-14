@@ -8,7 +8,7 @@ compose-*.yml
 compose-*.yaml
 
 # Database
-/data/*
+/data/**
 
 # Node.js and npm
 /src/node_modules/

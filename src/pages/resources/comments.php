@@ -13,11 +13,12 @@ class comments extends PageElementBase {
 		global $GlobalImport;
 		extract( $GlobalImport );
 
-		if (is_string( $Page ))
+		if (is_string( $Page )) {
 			$this->Extension['page'] = $Page;
-		elseIf (is_array( $Page )) {
+			$this->Extension['show']['title'] = true; // @todo When is $Page array and what should we do here?
+		} elseIf (is_array( $Page )) {
 			$this->Extension['page'] = $Page['page'];
-			$this->Extension['show']['title'] = (isset( $Page['show']['title'] ) && !$Page['show']['title']) ? false : true;
+			$this->Extension['show']['title'] = !(isset( $Page['show']['title'] ) && !$Page['show']['title']);
 		}
 
 		if (p('comments-view-hidden'))
