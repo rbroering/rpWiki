@@ -132,7 +132,7 @@ class Skin extends SkinBase {
 				];
 
 				$ToolnavPagetools = [];
-				if (in_array($Page->info('url'), ['page', 'site', 'editor']) && !empty($_GET['url'])) {
+				if (in_array($Page->info('url'), ['page', 'site', 'editor']) && !empty($_GET[$Wiki['config']['urlparam']['pagename']])) {
 					$ToolnavPagetools = [
 						[
 							"name" => "edit",
