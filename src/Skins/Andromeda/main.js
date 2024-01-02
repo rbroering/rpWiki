@@ -81,9 +81,17 @@ function headerSearch(addRemove) {
 }
 
 $( document ).ready(function() {
+	if (getCookie('navpanel-active') == 'true') {
+		$( '#NavigationPanel' ).addClass( 'shown' );
+	} else if (getCookie('navpanel-active') == 'false') {
+		$( '#NavigationPanel' ).removeClass( 'shown' );
+	}
+
 	// Navigation Panel
 	$( '#h_btn_nav' ).click( function() {
 		$( '#NavigationPanel' ).toggleClass( 'shown' );
+		let active = $( '#NavigationPanel' ).hasClass( 'shown' );
+		setCookie('navpanel-active', active, 365);
 	});
 	$( '#h_btn_user, #UserPanel' ).click( function() {
 		arClass(2, '#UserPanel', 'shown');

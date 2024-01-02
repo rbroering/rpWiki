@@ -50,6 +50,8 @@
     "control-saved": "Die Einstellungen wurden gespeichert.",
     "control-users": "Benutzer",
     "control-y": "Erlauben",
+    "cookies-accept-button": "Cookies zulassen",
+    "cookies-info": "Diese Webseite nutzt funktionale Cookies. Durch das Klicken von \"%msg{cookies-accept-button}\" bestätigen Sie, dass Sie damit einverstanden sind.",
 	"deprecated-group": "veraltete Gruppe ($0)",
     "edit": "Bearbeiten",
     "edit-groups-link": "Benutzerrechte ändern",

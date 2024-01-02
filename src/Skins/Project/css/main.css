@@ -446,4 +446,8 @@ footer#footer.copyright-footer a {
 	color: #CACACA;
 }
 
+#cookies-info {
+	text-align: center;
+}
+
 #particles-js { display: none !important; }

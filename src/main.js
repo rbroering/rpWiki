@@ -1,3 +1,38 @@
+/* COOKIES */
+// https://www.w3schools.com/js/js_cookies.asp
+
+function getCookie(cookiename) {
+    let name = cookiename + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let allcookies = decodedCookie.split(';');
+
+    for (let i = 0; i < allcookies.length; i++) {
+        let cookie = allcookies[i];
+
+        while (cookie.charAt(0) == ' ') {
+            cookie = cookie.substring(1);
+        }
+
+        if (cookie.indexOf(name) == 0) {
+            return cookie.substring(name.length, cookie.length);
+        }
+    }
+
+    return false;
+}
+
+function setCookie(name, value, expiry) {
+    if (name != 'cookies-accepted' && !getCookie('cookies-accepted')) return false;
+
+    const date = new Date();
+    date.setTime(date.getTime() + (expiry * 24 * 60 * 60 * 1000));
+    let expires = "expires="+ date.toUTCString();
+
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+let cookieConsent = !!getCookie('cookies-accepted');
+
 /* COMMON FUNCTIONS */
 
 function sh(showHide, idClass, name) {

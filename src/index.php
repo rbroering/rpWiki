@@ -310,9 +310,26 @@ $Load = [];
 			'load' => $System['page']
 			]);
 			$Skin->construct();
-
-			if (!$Actor->isLoggedIn() || $UserPref['bgfx_heavy']) {
 		?>
+
+		<div id="cookies-info" style="display: none;" >
+			<?php msg('cookies-info'); ?> <button id="cookies-consent" ><?php msg('cookies-accept-button'); ?></button>
+		</div>
+		<script type="text/javascript" >
+			if (!getCookie('cookies-accepted')) {
+				$('#cookies-info').show();
+			} else {
+				cookieConsent = true;
+			}
+
+			$('#cookies-consent').click(function() {
+				setCookie('cookies-accepted', true, 60);
+				cookieConsent = true;
+				$('#cookies-info').fadeOut(600);
+			});
+		</script>
+
+<?php if (!$Actor->isLoggedIn() || $UserPref['bgfx_heavy']) { ?>
 		<!-- For the RuvenProductions website -->
 		<style type="text/css" >
 			#particles-js {
@@ -330,8 +347,6 @@ $Load = [];
 				console.log('callback - particles.js config loaded');
 			});
 		</script>
-<?php
-			}
-		?>
+<?php } ?>
 	</body>
 </html>

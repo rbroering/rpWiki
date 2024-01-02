@@ -586,7 +586,8 @@ div.maincontent {
 
 .content,
 #main,
-#footer {
+#footer,
+#cookies-info {
     background: white;
 }
 
@@ -711,7 +712,8 @@ h1.pagetitle .historybacklink small {
     border-bottom: 1px solid #EAEAEA;
 }
 
-footer#footer.copyright-footer {
+footer#footer.copyright-footer,
+#cookies-info {
     width: 100%;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -725,6 +727,23 @@ footer#footer.copyright-footer {
 
 footer#footer.copyright-footer a {
     color: #0A4884;
+}
+
+
+/* Cookies Info */
+
+#cookies-info {
+    width: 100%;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    z-index: 9;
+    color: inherit !important;
+}
+
+#cookies-info button {
+    border: 2px solid #2e6db1;
+    border-radius: 8px;
 }
 
 

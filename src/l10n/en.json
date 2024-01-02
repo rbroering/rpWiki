@@ -51,6 +51,8 @@
     "control-saved": "The control settings have been saved.",
     "control-users": "Users",
     "control-y": "Allow",
+    "cookies-accept-button": "Allow Cookies",
+    "cookies-info": "This website uses functional cookies. By clicking \"%msg{cookies-accept-button}\", you agree to the use of cookies.",
 	"deprecated-group": "deprecated group ($0)",
     "edit": "Edit",
     "edit-groups-link": "Edit user groups",
