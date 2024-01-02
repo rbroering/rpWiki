@@ -112,9 +112,9 @@ class Skin extends SkinBase {
 						"permission" => "requests"
 					],
 					[
-						"name" => "control",
-						"label" => msg('pt-control', 1),
-						"link" => fl('control'),
+						"name" => "permissions",
+						"label" => msg('pt-permissions', 1),
+						"link" => fl('permissions'),
 						"permission" => "control-edit"
 					],
 					[

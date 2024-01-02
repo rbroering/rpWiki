@@ -29,20 +29,20 @@ DROP TABLE IF EXISTS `comments`;
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `rid` text NOT NULL,
-  `page` text DEFAULT NULL,
-  `pagetype` text DEFAULT NULL,
-  `title` text DEFAULT NULL,
+  `page` text NOT NULL,
+  `pagetype` text NOT NULL,
+  `title` text NOT NULL,
   `content` longtext NOT NULL,
-  `tags` text DEFAULT NULL,
-  `timestamp` text DEFAULT NULL,
-  `timezone` text DEFAULT NULL,
-  `writer` text DEFAULT NULL,
-  `edited` text DEFAULT NULL,
-  `type` text DEFAULT '',
-  `hidden` text DEFAULT NULL,
-  `toId` text DEFAULT NULL,
-  `toRid` text DEFAULT NULL,
-  `data` text DEFAULT NULL,
+  `tags` text NOT NULL,
+  `timestamp` text NOT NULL,
+  `timezone` text NOT NULL,
+  `writer` text NOT NULL,
+  `edited` text NOT NULL,
+  `type` text NOT NULL,
+  `hidden` text NOT NULL,
+  `toId` text NOT NULL,
+  `toRid` text NOT NULL,
+  `data` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -84,15 +84,15 @@ DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `rid` text NOT NULL,
-  `access` text DEFAULT NULL,
-  `url` text DEFAULT NULL,
-  `type` text DEFAULT NULL,
-  `name` text DEFAULT NULL,
+  `access` text DEF NULL,
+  `url` text NOT NULL,
+  `type` text NOT NULL,
+  `name` text NOT NULL,
   `file` longblob NOT NULL,
-  `data` text DEFAULT NULL,
-  `timestamp` text DEFAULT NULL,
-  `timezone` text DEFAULT NULL,
-  `user` text DEFAULT NULL,
+  `data` text NOT NULL,
+  `timestamp` text NOT NULL,
+  `timezone` text NOT NULL,
+  `user` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -145,7 +145,7 @@ CREATE TABLE `permissions` (
 
 LOCK TABLES `permissions` WRITE;
 /*!40000 ALTER TABLE `permissions` DISABLE KEYS */;
-INSERT INTO `permissions` VALUES (1,'reg','*',''),(2,'editpage','-',''),(3,'editusergroups','staff,helper,admin',''),(4,'blockuser','staff,helper,admin',''),(5,'hidecomments','staff,helper,admin',''),(6,'editcomments','staff,helper,admin',''),(7,'writecomments','staff,support,helper,admin',''),(8,'writereplies','staff,support,helper,admin',''),(9,'deletecomments','staff,helper',''),(10,'editreplies','staff,helper,admin,own',''),(11,'hidereplies','staff,helper,admin',''),(12,'deletereplies','staff,helper',''),(13,'hideuser','staff,helper,admin',''),(14,'p-edit','users',''),(15,'edit-force','staff,helper',''),(16,'edit-ns-sys','staff',''),(17,'edit-ns-user','staff,helper,admin,own',''),(18,'edit-ns-help','support,staff',''),(19,'edit-ns-blog','staff,helper,admin,own',''),(20,'p-rename','staff,helper,admin',''),(21,'p-protect','staff,helper,admin',''),(22,'delete-user','staff',''),(23,'p-hide','staff,helper,admin',''),(24,'globalnotif','staff,helper',''),(25,'set-usericon','staff,helper,own',''),(26,'control-edit-groups','staff',''),(27,'control-view','users',''),(28,'control-edit','staff',''),(29,'edit-strange-css','staff,helper',''),(30,'edit-strange-js','staff,helper',''),(31,'test','-',''),(32,'edit-ns-system','staff',''),(33,'create-ns-blog','users',''),(34,'create-ns-sys','staff',''),(35,'create-ns-system','staff',''),(36,'create-ns-user','staff',''),(37,'create-ns-help','staff,helper,admin',''),(38,'view-hidden-user','staff,helper,admin',''),(39,'view-versions','*',''),(40,'p-protect-advanced','staff,helper,admin',''),(41,'log-view','*',''),(42,'log-view-hidden','staff,helper,admin',''),(43,'create-ns-guide','staff,helper',''),(44,'edit-ns-guide','staff,helper',''),(45,'create-ns-template','staff,helper,admin',''),(46,'edit-ns-template','staff,helper,admin',''),(47,'log-hide-entry','staff,helper',''),(48,'e-suppresslog','staff,helper,test_group',''),(49,'e-nolog','-',''),(50,'beta-access','test_group',''),(51,'feedback-priority','helper,admin,test_group,verified',''),(52,'comments-view-hidden','staff,helper,admin',''),(53,'reg-while-loggedin','staff',''),(54,'suppress-protection','staff',''),(55,'search-show-hidden','staff,helper',''),(56,'requests','staff',''),(57,'create-ns-msg','staff',''),(58,'edit-ns-msg','staff',''),(59,'pagelist-view','*','');
+INSERT INTO `permissions` VALUES (1,'reg','*',''),(2,'editpage','-',''),(3,'editusergroups','staff,helper,admin',''),(4,'blockuser','staff,helper,admin',''),(5,'hidecomments','staff,helper,admin',''),(6,'editcomments','staff,helper,admin',''),(7,'writecomments','staff,support,helper,admin',''),(8,'writereplies','staff,support,helper,admin',''),(9,'deletecomments','staff,helper',''),(10,'editreplies','staff,helper,admin,own',''),(11,'hidereplies','staff,helper,admin',''),(12,'deletereplies','staff,helper',''),(13,'hideuser','staff,helper,admin',''),(14,'p-edit','users',''),(15,'edit-force','staff,helper',''),(16,'edit-ns-sys','staff',''),(17,'edit-ns-user','staff,helper,admin,own',''),(18,'edit-ns-help','support,staff',''),(19,'edit-ns-blog','staff,helper,admin,own',''),(20,'p-rename','staff,helper,admin',''),(21,'p-protect','staff,helper,admin',''),(22,'delete-user','staff',''),(23,'p-hide','staff,helper,admin',''),(24,'globalnotif','staff,helper',''),(25,'set-usericon','staff,helper,own',''),(26,'control-edit-groups','staff',''),(27,'control-view','users',''),(28,'control-edit','staff',''),(29,'edit-strange-css','staff,helper',''),(30,'edit-strange-js','staff,helper',''),(31,'test','-',''),(32,'edit-ns-system','staff',''),(33,'create-ns-blog','users',''),(34,'create-ns-sys','staff',''),(35,'create-ns-system','staff',''),(36,'create-ns-user','staff',''),(37,'create-ns-help','staff,helper,admin',''),(38,'view-hidden-user','staff,helper,admin',''),(39,'view-versions','*',''),(40,'p-protect-advanced','staff,helper,admin',''),(41,'log-view','*',''),(42,'log-view-hidden','staff,helper,admin',''),(43,'create-ns-guide','staff,helper',''),(44,'edit-ns-guide','staff,helper',''),(45,'create-ns-template','staff,helper,admin',''),(46,'edit-ns-template','staff,helper,admin',''),(47,'log-hide-entry','staff,helper',''),(48,'e-suppresslog','staff,helper,test_group',''),(49,'e-nolog','-',''),(50,'beta-access','test_group',''),(51,'feedback-priority','helper,admin,test_group,verified',''),(52,'comments-view-hidden','staff,helper,admin',''),(53,'reg-while-loggedin','staff',''),(54,'suppress-protection','staff',''),(55,'search-show-hidden','staff,helper',''),(56,'requests','staff',''),(57,'create-ns-msg','staff',''),(58,'edit-ns-msg','staff','');
 /*!40000 ALTER TABLE `permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 

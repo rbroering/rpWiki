@@ -1,18 +1,16 @@
 <?php
 
 class Page extends PageBase {
-	public $Styles	= [ '/css/site.css' ];
+	public $Styles	= [ '/css/page.css' ];
 	public $Scripts	= [  ];
 
 	public function msg( $str ) {
 		switch ($str) {
 			case 'pagetitle':
 			case 'disptitle':
-				return msg( 'pt-control', 1 );
-			break;
+				return msg( 'pt-permissions', 1 );
 			default:
 				return '';
-			break;
 		}
 	}
 
@@ -40,7 +38,6 @@ class Page extends PageBase {
 				}
 				input[type="submit"] {
 					margin: 20px 0 10px;
-					background: #ffffff;
 				}
 
 				.permissions_Range_Select {
@@ -56,37 +53,36 @@ class Page extends PageBase {
 					display: none !important;
 				}
 				.radio-label .label-desc {
-					margin: 5px 0;
+					margin: 5px 5px 5px 0;
 					padding: 5px 10px;
-					background: #c3c3c3;
+					background: rgba(0, 0, 0, .4);
+					border-radius: 12px;
 					float: left;
+					font-weight: bold;
+					transition: 100ms;
+				}
+				.radio-label .label-desc:hover {
+					background: rgba(0, 0, 0, .3);
 				}
 				.radio-label.checked .label-desc {
-					background: #d4c4c4;
+					background: #5c8f6e;
 				}
 
 				#control_add_Permission_Button {
-					height: 30px;
 					margin: 10px 20px;
-					padding: 0 10px;
-					border: 1px solid darkgreen;
-					color: darkgreen;
-					line-height: 30px;
-					display: inline-block;
-					cursor: pointer;
-					transition: .2s;
 				}
 				#control_add_Permission_Button:before {
-					margin: 0 10px 0 0;
+					width: 1em;
+					margin-left: -5px;
 					content: "+";
-					font-size: 26px;
+					font-size: 1.5em;
 					font-weight: bold;
 					float: left;
 				}
-				#control_add_Permission_Button:hover {
-					background: #7db986;
-					border-color: #7db986;
-					color: white;
+				#control_add_Permission_Button span {
+					display: block;
+					float: right;
+					/* background: #7db986; */
 				}
 			</style>
 			<table id="permissions_Table" >
@@ -99,10 +95,18 @@ class Page extends PageBase {
 					</tr>
 				</thead>
 		<?php
-			$Permissions = $dbc->query( "SELECT * FROM permissions ORDER BY permission" );
+			$Permissions = $dbc->query( "SELECT permission, groups, users FROM permissions ORDER BY permission" );
 			$Permissions = $Permissions->fetchAll();
 
 			foreach ($Permissions as $Permission) {
+				if (is_null($Permission['groups'])) {
+					$Permission['groups'] = '-';
+				}
+	
+				if (is_null($Permission['users'])) {
+					$Permission['users'] = '';
+				}
+
 				?>
 				<tr>
 					<td><?php echo $Permission['permission']; ?></td>
@@ -139,7 +143,6 @@ class Page extends PageBase {
 								<div class="permissions_Group_List" >
 								<?php
 									$checkBoxes = array();
-
 									foreach ($Wiki['groups'] as $Groupname => $Group) {
 										$checkBoxes['control_' . $Permission['permission'] . '_' . $Groupname] = [
 											'checked'	=> (stristr( $Permission['groups'], $Groupname )) ? true : false,
@@ -181,7 +184,7 @@ class Page extends PageBase {
 						?></div>
 					</td>
 					<td><?php
-					$Profiles = explode( ',', $Permission['users'] );
+					$Profiles = explode( ',', $Permission['users'] ?? '' );
 					$i = 0;
 					foreach( $Profiles as $Profile ) {
 						$i++;
@@ -199,7 +202,7 @@ class Page extends PageBase {
 		?>
 				<tr>
 					<td colspan="4" style="padding: 0 20px;" >
-						<div id="control_add_Permission_Button" >Add a new permission</div>
+						<button id="control_add_Permission_Button" ><span>Add a new permission</span></button>
 					</td>
 				</tr>
 		<?php

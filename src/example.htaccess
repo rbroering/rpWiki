@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase /path/to/base/
+RewriteBase /
 Options +FollowSymlinks
 RewriteRule ^\.htaccess$ - [F]
 
@@ -9,19 +9,19 @@ RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-d
 
 # Page URLs
 
-RewriteRule ^([A-Za-z0-9-_]+)$ index.php?page=$1 [QSA,L]
+RewriteRule ^([A-Za-z0-9-_]+)$ index.php?page=$1 [B,L,QSA]
 
 
 # Special URLs
 
-RewriteRule ^u/(.+)$ index.php?page=user&user=$1 [QSA,L]
-RewriteRule ^u2/(.+)$ index.php?page=user2&user=$1 [QSA,L]
-RewriteRule ^p/(.+)$ index.php?page=page&address=$1 [QSA,L]
+RewriteRule ^u/(.+)$ index.php?page=user&user=$1 [B,L,QSA]
+RewriteRule ^u2/(.+)$ index.php?page=user2&user=$1 [B,L,QSA]
+RewriteRule ^p/(.+)$ index.php?page=page&address=$1 [B,L,QSL]
 
 
 # Media
 
-RewriteRule ^media/(?:usericon/)?([A-Za-z0-9_-]+)(?:/(w[0-9]+|h[0-9]+|w[0-9]+-h[0-9]+))?(?:/.*)?$ media.php?url=$1&size=$2 [QSA,L]
+RewriteRule ^media/(?:usericon/)?([A-Za-z0-9_-]+)(?:/(w[0-9]+|h[0-9]+|w[0-9]+-h[0-9]+))?(?:/.*)?$ media.php?url=$1&size=$2 [L,QSA]
 
 # Restrictions
 

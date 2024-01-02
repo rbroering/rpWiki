@@ -4,7 +4,7 @@ require_once( 'getdata.php' );
 
 if (empty( $_POST )) {
 	$Link = fl( 'preferences' );
-	header( 'Location: $Link' );
+	header( "Location: $Link" );
 	die();
 }
 

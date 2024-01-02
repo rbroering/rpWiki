@@ -82,7 +82,7 @@ $( document ).ready( function() {
 		$( '#control_add_Permission_Button' ).click( function() {
 			if ($( '#permissions_Table' ).has( '#control_new_Permission' ).length == false) {
 				$( this ).parents( 'tr' ).before(
-				'<tr id="control_new_Permission" ><td id="control_new_Name" contenteditable="true" ></td><td id="control_new_Status" ></td><td><i id="control_new_Submit" style="color: #3333CC; cursor: pointer;" >Submit</i></td><td></td>'
+				'<tr id="control_new_Permission" ><td id="control_new_Name" contenteditable="true" ></td><td id="control_new_Status" ></td><td><button id="control_new_Submit" >Submit</button></td><td></td>'
 				);
 				$( '#control_new_Name' ).focus();
 				$( '#control_add_Permission_Button' ).css( 'opacity', '.4' ).css( 'cursor', 'default' );

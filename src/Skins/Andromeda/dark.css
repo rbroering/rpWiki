@@ -69,7 +69,9 @@ hr {
     background-color: #757575 !important;
 }
 
-table:not(.positioning-table), tr td {
+table:not(.positioning-table),
+table:not(.positioning-table) tr td,
+table:not(.positioning-table) tr th {
     border-color: #808080;
 }
 table:not(.positioning-table) tr {

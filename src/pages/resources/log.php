@@ -398,7 +398,7 @@ class log extends PageElementBase {
 							break;
 					}
 
-					$Types	= array_filter( explode( ',', ur( '*', $Entry['username'], true ) ) );
+					$Types	= array_filter( explode( ',', ur( '*', $Entry['username'], true ) ?? '' ) );
 					$Hide	= false;
 
 					foreach ($Types as $Type) {

@@ -220,7 +220,7 @@ class User {
 			return false;
 		}
 
-		$Groups = $Allowed['groups'];
+		$Groups = $Allowed['groups'] ?? '';
 		$Users	= (!empty($Allowed['users'])) ? explode(',', rtrim($Allowed['users'])) : false;
 
 		switch ($Groups) {

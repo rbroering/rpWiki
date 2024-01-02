@@ -779,7 +779,7 @@ class Page extends PageBase {
 					$HideGroups = array_merge($Wiki['groups'], ['users' => $Wiki['autogroups']['users']]);
 
 					$HideInLog = false;
-					$Properties = $this->Storage['hide']['properties'] = json_decode($this->WP->data('properties'), true);
+					$Properties = $this->Storage['hide']['properties'] = json_decode($this->WP->data('properties') ?? "{}", true);
 					if (!is_array($Properties)) $Properties = [];
 					if (array_key_exists('hide_options', $Properties)) {
 						if (in_array('hide_in_log', $Properties['hide_options'])) $HideInLog = true;

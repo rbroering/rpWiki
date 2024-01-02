@@ -105,13 +105,10 @@ class HTMLTags extends HTML {
      * @return string|false
      */
     public function divIdClassAttr($id = "", $class = [], $tag_attributes = [], $tag_inner = "") {
-        if (is_string($class))
-            $class = [$class];
+        if (is_string($class)) $class = [$class];
+        if (!empty($class)) $class = ['class' => $this->class($class)];
 
-        if (!empty($class))
-            $class = ['class' => $this->class($class)];
-
-        $id = (!empty($id)) ? ['id' => $id] : [];
+        $id = !empty($id) ? ['id' => $id] : [];
 
         $attributes = array_merge($id, $class, $tag_attributes);
 
@@ -167,8 +164,7 @@ class HTMLTags extends HTML {
      * @return string|false
      */
     public function span($text = "", $class = [], $id = "", $tag_attributes = []) {
-        if (is_string($class))
-            $class = [$class];
+        if (is_string($class)) $class = [$class];
 
         if (!empty($class)) {
             $class = $this->class($class);
@@ -180,6 +176,72 @@ class HTMLTags extends HTML {
         $attributes = array_merge($id, $class, $tag_attributes);
 
         return $this->returnOrPrint($this->tag('span', $attributes, $text));
+    }
+
+
+    /**
+     * Generate a <table> from a 2-dimensional array.
+     * The outer array contains rows, the inner arrays contain columns.
+     *
+     * @param array $data
+     * @param string|array $class
+     * @param array $tag_attributes
+     * @param boolean $table_firstrowisheading Whether to treat the first row as a heading
+     * @param string|boolean $table_indexes Whether to add a numeric index column. If string, heading text
+     * @return string|false
+     */
+    public function tableFrom2dArray(
+        $data = [],
+        $class = [], $id = "", $tag_attributes = [],
+        $table_firstrowisheading = true,
+        $table_indexes = false
+    ) {
+        // $printModeBefore = $this->printMode;
+        // $this->setPrintMode(false);
+        $this->overridePm = true;
+
+        $this->setGroup('Scripts/Tags/tableFrom2dArray');
+
+        if (is_string($class)) $class = [$class];
+
+        if (!empty($class)) {
+            $class = $this->class($class);
+            $class = ['class' => $class];
+        }
+
+        $id = (!empty($id)) ? ['id' => $id] : [];
+
+        $attributes = array_merge($id, $class, $tag_attributes);
+
+        $out = $this->open('table', 'table', $attributes);
+
+        foreach($data as $iRow => $row) {
+            $out.= $this->open('tr', 'tr');
+
+            if ($table_indexes) {
+                $key = ($table_indexes && $iRow == 0 ? msg('tags-table-indexlabel', 1) : $iRow);
+                $row = [$key, ...$row];
+            }
+
+            foreach($row as $iCol => $column) {
+                $tag = $table_firstrowisheading && $iRow == 0 ? 'th' : 'td';
+
+                $out .= $this->open('td', $tag);
+                $out .= $column;
+                $out .= $this->close('td');
+            }
+
+            $out .= $this->close('tr');
+        }
+
+        $out .= $this->close('table');
+
+        $this->unsetGroup();
+
+        $this->overridePm = false;
+        // $this->setPrintMode($printModeBefore);
+
+        return $this->returnOrPrint($out);
     }
 }
 

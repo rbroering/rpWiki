@@ -266,7 +266,9 @@ table:not(.positioning-table) {
 	border: 1px solid #CACACA;
 	border-collapse: collapse;
 }
-thead tr, thead td {
+thead tr,
+thead td,
+th {
 	font-weight: bold;
 	border-bottom: 2px solid #CACACA;
 }
@@ -276,12 +278,14 @@ table:not(.positioning-table) tr {
 table:not(.positioning-table) tbody tr:nth-child(2n - 1) {
 	background: #D8D8D8;
 }
-table:not(.positioning-table) tr td {
+table:not(.positioning-table) tr td,
+table:not(.positioning-table) tr th {
 	padding: 5px 20px 5px;
 	border-right: 1px solid #CACACA;
 	border-bottom: 1px solid #CACACA;
 }
-tr td.h {
+tr td.h,
+tr th.h {
 	font-weight: bold;
 }
 table:not(.positioning-table) td > img {
@@ -303,7 +307,8 @@ table.thin-borders {
 	border-style: solid;
 	border-top-width: 1px;
 }
-table.thin-borders td {
+table.thin-borders td,
+table.thin-borders th {
 	border-style: solid;
 	border: 0;
 	border-bottom-width: 1px;
@@ -312,7 +317,8 @@ table.light-borders {
 	border-style: solid;
 	border-top-color: #D3D3D3;
 }
-table.light-borders td {
+table.light-borders td,
+table.light-borders th {
 	border-style: solid;
 	border-bottom-color: #D3D3D3;
 }

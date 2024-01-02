@@ -1,27 +1,28 @@
 <?php
 
-define("HTML_CALLED_FROM_WITHIN_CLASS", "The method was called from within the HTML class. #d672jaO9_1iJ");
+define("HTML_CALLED_FROM_WITHIN_CLASS", "The method was called from within the HTML class.");
 
 class HTML {
-    protected $printMode  = false;
-    protected $overridePm = false;
-    protected $autoNl     = false;
-    protected $overrideNl = false;
-    protected $autoTab    = false;
-    protected $overrideTab= false;
-    protected $shortTags  = [];
-    protected $tagList    = [];
-    protected $tagStats   = [];
-    protected $lastElem   = false;
-    private $Errors       = [];
-    private $Warnings     = [];
+    protected $printMode   = false;
+    protected $overridePm  = false;
+    protected $autoNl      = false;
+    protected $overrideNl  = false;
+    protected $autoTab     = false;
+    protected $overrideTab = false;
+    protected $shortTags   = [];
+    protected $tagGroup    = '_';
+    protected $tagList     = [];
+    protected $tagStats    = [];
+    protected $lastElem    = false;
+    private $Errors        = [];
+    private $Warnings      = [];
 
     protected $noValueAttributes = [
         'checked',
         'disabled'
     ];
 
-    protected $noNlTags    = [
+    protected $noNlTags = [
         'span', 'b', 'i', 'u', 'strong', 's',
         'div' => [
             'attributes' => [
@@ -46,7 +47,7 @@ class HTML {
         ]
     ];
 
-    protected $noIndent    = [
+    protected $noIndent = [
         'span', 'b', 'i', 'u', 'strong', 's',
         'div' => [
             'attributes' => [
@@ -71,9 +72,12 @@ class HTML {
         ]
     ];
 
-    public $indent      = 0;
+    public $indent = 0;
 
     public function __construct() {
+        $this->tagGroup = '_';
+        $this->tagList[$this->tagGroup] = [];
+
         $this->shortTags = [
             'input', 'link', 'img', 'br'
         ];
@@ -88,12 +92,127 @@ class HTML {
      */
     protected function tagStats($tag_name) {
         if (!array_key_exists($tag_name, $this->tagStats)) {
-            $this->tagStats[$tag_name]          = [];
+            $this->tagStats[$tag_name] = [];
 
             $this->tagStats[$tag_name]['count'] = 0;
         }
 
         $this->tagStats[$tag_name]['count']++;
+    }
+
+
+    /**
+     * Used to group elements by setting a $name.
+     * Default is "_".
+     *
+     * @param string $name
+     * @return void
+     */
+    public function setGroup($name) {
+        $this->tagGroup = strlen($name) >= 1 ? $name : '_';
+        $this->tagList[$this->tagGroup] = [];
+    }
+
+
+    /**
+     * Switch to default group
+     *
+     * @return void
+     */
+    public function unsetGroup() {
+        $this->tagGroup = '_';
+    }
+
+
+    /**
+     * Returns currently active group.
+     *
+     * @return string
+     */
+    public function getGroup() {
+        return strlen($this->tagGroup) >= 1 ? $this->tagGroup : '_';
+    }
+
+
+    /**
+     * Returns tag list from specified group.
+     * This does only include non-closed tags.
+     *
+     * @param string|false $group If false, use currently set group
+     * @param string|integer $id If specified, only returns this tag
+     * @return array|false
+     */
+    protected function getTagList($group = false, $id = '') {
+        if (!$group) $group = $this->getGroup();
+
+        $list = $this->tagList[$group] ?? false;
+
+        if ($list && ($id === 0 || !empty($id))) {
+            return $list[$id] ?? false;
+        } else {
+            return $list;
+        }
+    }
+
+
+    /**
+     * Alias for getTagList() with swapped parameters
+     *
+     * @param string|integer $id
+     * @param string|false $group If false, use currently set group
+     * @return array|false
+     */
+    protected function getTag($id, $group = false) {
+        return $this->getTagList($group, $id);
+    }
+
+
+    /**
+     * Inserts a new tag to the tag list.
+     *
+     * @param string|integer $id ID to apply to the tag
+     * @param string $content Tag content
+     * @param string|false $group If false, use currently set group
+     * @throws Exception If tag group does not exist
+     * @throws Exception If insert would cause duplicate key
+     * @return void
+     */
+    protected function setTag($id, $content, $group = false) {
+        if (!$group) $group = $this->getGroup();
+
+        $tagList = $this->getTagList($group);
+
+        if ($tagList === false) {
+            throw new Exception("Cannot insert tag \"$id\" as group \"$group\" does not exist.");
+        } elseif (array_key_exists($id, $tagList)) {
+            throw new Exception("Cannot insert tag \"$id\" in tag list \"$group\" as ID is already in use.");
+        }
+
+        $this->tagList[$group][$id] = $content;
+    }
+
+
+    /**
+     * Removes a tag from the tag list.
+     *
+     * @param string|integer $id ID of the tag
+     * @param string|false $group If false, use currently set group
+     * @throws Exception If tag group does not exist
+     * @throws Exception If key is not in tag list
+     * @return void
+     */
+    protected function unsetTag($id, $group = false) {
+        if (!$group) $group = $this->getGroup();
+
+        $tagList = $this->getTagList($group);
+
+        if ($tagList === false) {
+            throw new Exception("Cannot unset tag \"$id\" as group \"$group\" does not exist.");
+        } elseif (!array_key_exists($id, $tagList)) {
+            throw new Exception("Cannot unset tag \"$id\" in tag list \"$group\" as ID is not in use.");
+        }
+
+        unset($this->tagList[$group][$id]);
     }
 
 
@@ -133,8 +252,7 @@ class HTML {
         $status = ($status) ? true : false;
         $this->autoTab = $status;
 
-        if (is_integer($indent))
-            $this->indent = $indent;
+        if (is_integer($indent)) $this->indent = $indent;
     }
 
 
@@ -167,19 +285,16 @@ class HTML {
 
                 foreach ($tag_attributes as $key => $value) {
                     if (array_key_exists($key, $attributes)) {
-                        if ($attributes[$key] === true || $attributes[$key] === $value)
-                            $checks = false;
+                        if ($attributes[$key] === true || $attributes[$key] === $value) $checks = false;
                     }
                 }
 
                 if (array_key_exists('action', $tag_settings)) {
-                    if (!in_array($action, $tag_settings['action']))
-                        $checks = true;
+                    if (!in_array($action, $tag_settings['action'])) $checks = true;
                 }
             }
             if (array_key_exists('action', $tag_settings)) {
-                if (in_array($action, $tag_settings['action']))
-                    $checks = false;
+                if (in_array($action, $tag_settings['action'])) $checks = false;
             }
         }
 
@@ -195,12 +310,14 @@ class HTML {
     protected function autoNl($tag_name = false, $tag_attributes = [], $action = "") {
         $checks = $this->useNlAndIndent($tag_name, $tag_attributes, $action);
 
-        if ($checks && $this->autoNl && !$this->overrideNl)
+        if ($checks && $this->autoNl && !$this->overrideNl) {
+            $this->overrideNl = false;
             return "\n";
-        else
+        } else {
+            $this->overrideNl = false;
             return "";
+        }
 
-        $this->overrideNl = false;
     }
 
 
@@ -210,15 +327,10 @@ class HTML {
      * @return string
      */
     protected function autoIndent() {
-        /*if (!$this->autoTab || $this->overrideTab)
-            return "";*/
-
         $str = "";
 
-        #echo $this->indent . ', ';
-
         for ($i = 1; $i <= $this->indent; $i++) {
-            $str .=  "\t";
+            $str .= "\t";
         }
 
         return $str;
@@ -234,7 +346,7 @@ class HTML {
      */
     protected function returnOrPrint($str) {
         if ($this->overridePm) {
-            $this->overridePm = false;
+            // $this->overridePm = false;
             return $str;
         }
 
@@ -275,17 +387,18 @@ class HTML {
      * @param string $id
      * @param string $tag_name
      * @param array $tag_attributes
+     * @param string $group
      * @return string|false
      */
-    public function open($id, $tag_name, $tag_attributes = []) {
+    public function open($id, $tag_name, $tag_attributes = [], $group = false) {
         $this->tagStats($tag_name);
 
-        $this->tagList[$id] = [
+        $this->setTag($id, [
             'tag'           => $tag_name,
             'attributes'    => $tag_attributes,
             'printmodeopen' => $this->printMode,
-            'closed'        => false
-        ];
+            'closed'        => false,
+        ], $group);
 
         $attributes = $this->attributes($tag_attributes);
 
@@ -305,26 +418,29 @@ class HTML {
      * @param string $tag_name
      * @return string|false
      */
-    public function close($id, $tag_name = "") {
-        if (array_key_exists($id, $this->tagList)) {
-            $tagList = $this->tagList[$id];
-            $tagList['closed']          = true;
-            $tagList['printmodeclose']  = $this->printMode;
+    public function close($id, $tag_name = "", $group = false) {
+        $tagList = $this->getTagList($group, $id);
+
+        if ($tagList) {
+            $tagList['closed'] = true;
+            $tagList['printmodeclose'] = $this->printMode;
             $tag_name = $tagList['tag'];
 
-            if ($tagList['printmodeopen'] !== $tagList['printmodeclose'])
+            if ($tagList['printmodeopen'] !== $tagList['printmodeclose']) {
                 $this->Warnings[] = "Different print modes set when opening and closing tag &lt;$tag_name&gt; (ID: <b>$id</b>).";
+            }
 
             $this->indent--;
 
-            $indent = ($this->useNlAndIndent('indent', $tag_name, $this->tagList[$id]['attributes'], 'close')) ? $this->autoIndent() : '';
-            $nl     = ($this->useNlAndIndent('nl', $tag_name, $this->tagList[$id]['attributes'], 'close')) ? $this->autoNl() : '';
+            $indent = ($this->useNlAndIndent('indent', $tag_name, $tagList['attributes'], 'close')) ? $this->autoIndent() : '';
+            $nl     = ($this->useNlAndIndent('nl', $tag_name, $tagList['attributes'], 'close')) ? $this->autoNl() : '';
 
-            unset($this->tagList[$id]);
+            $this->unsetTag($id, $group);
 
             return $this->returnOrPrint($indent . "</$tag_name>" . $nl);
         } else {
             $this->Errors[] = "Trying to close tag that has not been opened (given ID: <b>$id</b>).";
+            return false;
         }
     }
 
@@ -343,10 +459,10 @@ class HTML {
         if (empty($tag_inner) && in_array($tag_name, $this->shortTags)) {
             return $this->returnOrPrint("<$tag_name$attributes />");
         } else {
-            $this->overridePm   = true;
-            $open               = $this->open(0, $tag_name, $tag_attributes);
-            $this->overridePm   = true;
-            $close              = $this->close(0, $tag_name);
+            $this->overridePm = true;
+            $open = $this->open(0, $tag_name, $tag_attributes);
+            $close = $this->close(0, $tag_name);
+            $this->overridePm = false;
 
             return $this->returnOrPrint($open . $tag_inner . $close);
         }
@@ -363,8 +479,7 @@ class HTML {
         $return = "";
 
         foreach ($classes as $class) {
-            if (!empty($class))
-                $return .= $class . ' ';
+            if (!empty($class)) $return .= $class . ' ';
         }
 
         $return = rtrim($return);
@@ -382,8 +497,7 @@ class HTML {
     public function style($styles) {
         $return = "";
 
-        foreach ($styles as $key => $property)
-            $return .= "$key: $property; ";
+        foreach ($styles as $key => $property) $return .= "$key: $property; ";
 
         $return = rtrim($return);
 
@@ -408,8 +522,8 @@ class HTML {
      * @return void
      */
     public function markLastElem() {
-        $this->lastElem     = true;
-        $this->overrideNl   = true;
+        $this->lastElem   = true;
+        $this->overrideNl = true;
     }
 
 
@@ -420,25 +534,26 @@ class HTML {
         foreach ($this->tagStats as $tag => $data) {
             $i++;
 
-            echo "HTML-Tool Stats: #$i:\t<b>$tag</b> (Counted " . $data['count'] . " times).<br />";
+            echo "HTML Tool Stats: #$i:\t<b>$tag</b> (Counted " . $data['count'] . " times).<br>";
         }
 
         echo $output;
     }
 
 
-    public function getErrors() {
-        foreach ($this->tagList as $id => $data) {
-            if (!$data['closed'])
-                $this->Errors[] = "Found unclosed tag &lt;" . $data['tag'] . "&gt; created with the following id: <b>$id</b>.<br />";
+    public function getErrors($group = false) {
+        foreach ($this->getTagList($group) as $id => $data) {
+            if (!$data['closed']) {
+                $this->Errors[] = "Found unclosed tag &lt;" . $data['tag'] . "&gt; created with the following id: <b>$id</b>.<br>";
+            }
         }
 
         foreach ($this->Errors as $i => $Error) {
-            echo "<span style=\"color: darkred;\" >HTML-Tool Error #$i:\t$Error</span><br />";
+            echo "<span style=\"color: darkred;\" >HTML-Tool Error #$i:\t$Error</span><br>";
         }
 
         foreach ($this->Warnings as $i => $Warning) {
-            echo "<span style=\"color: darkorange;\" >HTML-Tool Warning #$i:\t$Warning</span><br />";
+            echo "<span style=\"color: darkorange;\" >HTML-Tool Warning #$i:\t$Warning</span><br>";
         }
     }
 }
