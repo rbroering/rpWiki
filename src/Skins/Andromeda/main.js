@@ -82,9 +82,13 @@ function headerSearch(addRemove) {
 
 $( document ).ready(function() {
 	if (getCookie('navpanel-active') == 'true') {
-		$( '#NavigationPanel' ).addClass( 'shown' );
-	} else if (getCookie('navpanel-active') == 'false') {
-		$( '#NavigationPanel' ).removeClass( 'shown' );
+		if (
+			document.querySelector('#NavigationPanel').getBoundingClientRect().right
+			>=
+			document.querySelector('#main').getBoundingClientRect().left
+		) {
+			$( '#NavigationPanel' ).removeClass( 'shown' );
+		}
 	}
 
 	// Navigation Panel
@@ -93,7 +97,7 @@ $( document ).ready(function() {
 		let active = $( '#NavigationPanel' ).hasClass( 'shown' );
 		setCookie('navpanel-active', active, 365);
 	});
-	$( '#h_btn_user, #UserPanel' ).click( function() {
+	$( '#h_btn_user, #UserPanel' ).hover( function() {
 		arClass(2, '#UserPanel', 'shown');
 		arClass(2, '.symbol.open', 'rotate');
 	});

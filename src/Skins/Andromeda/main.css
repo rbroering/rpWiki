@@ -324,6 +324,7 @@ nav#NavigationPanel.shown {
 .navSelector {
 	width: 234px;
 	margin: 10px auto 20px;
+    color: #333333;
 	border-bottom: 2px solid #5076c2;
 	border-radius: 8px;
 	box-shadow: 0 0 14px #000000;

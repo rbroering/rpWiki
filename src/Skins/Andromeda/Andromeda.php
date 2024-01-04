@@ -82,7 +82,7 @@ class Skin extends SkinBase {
 			}
 			?>
 		</header>
-		<nav id="NavigationPanel" class="nav navigation panel" >
+		<nav id="NavigationPanel" class="nav navigation panel<?php echo $_COOKIE['navpanel-active'] == "true" ? " shown" : ""; ?>" >
 			<div id="NavigationContent" >
 				<div id="search" >
 					<form action="<?php echo fl('search') ?>" method="get" id="searchForm" >
@@ -249,7 +249,7 @@ class Skin extends SkinBase {
 <?php
 		}
 		?>
-		<div class="maincontent" onclick="toggleClass('#NavigationPanel', 'shown', 0)" >
+		<div class="maincontent" >
 			<?php
 				$Notification = array();
 
